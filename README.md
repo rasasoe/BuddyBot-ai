@@ -355,28 +355,98 @@ uvicorn app.main:app --host 0.0.0.0 --port 8001
 tail -f /tmp/buddybot.log
 ```
 
-## 아키텍처
+## 🏗️ BuddyBot AI 아키텍처
+
+```mermaid
+graph TB
+    A[사용자 입력<br/>자연어] --> B[FastAPI 서버]
+    B --> C[Intent Router<br/>의도 분류]
+    C --> D{의도 판단}
+    
+    D -->|일반 대화| E[Ollama LLM<br/>BuddyBot 페르소나]
+    D -->|날씨 조회| F[Weather Tool<br/>OpenWeatherMap API]
+    D -->|시간 조회| G[Time Tool<br/>시스템 시간]
+    D -->|메모리| H[Memory Store<br/>SQLite]
+    D -->|로봇 상태| I[Robot Tool<br/>센서 데이터]
+    
+    E --> J[Orchestrator<br/>응답 조합]
+    F --> J
+    G --> J
+    H --> J
+    I --> J
+    
+    J --> K[자연어 응답<br/>한국어 출력]
+    K --> L[사용자]
+    
+    M[ROS2<br/>미래 확장] --> I
+    N[RAG<br/>미래 확장] --> E
+    O[STT/TTS<br/>미래 확장] --> B
+    
+    style E fill:#e1f5fe
+    style J fill:#f3e5f5
+    style K fill:#e8f5e8
+```
+
+### 아키텍처 설명 (졸작 발표용)
+
+**1. 사용자 입력 계층**
+- 자연어 입력 (음성/텍스트)
+- CLI, API, 웹 인터페이스 지원
+
+**2. AI 처리 계층**
+- **Intent Router**: 자연어 의도 분류 (룰 기반)
+- **Ollama LLM**: BuddyBot 페르소나 기반 응답 생성
+- **Tool System**: 외부 API 및 하드웨어 제어
+
+**3. 데이터 계층**
+- **Memory Store**: SQLite 기반 사용자 메모리
+- **Configuration**: 환경변수 기반 설정 관리
+
+**4. 확장 계층 (미래)**
+- **ROS2**: 실제 로봇 제어
+- **RAG**: 문서 기반 Q&A
+- **STT/TTS**: 음성 인터페이스
+
+### 기술적 특징
+
+- **모듈러 설계**: 각 컴포넌트 독립적 교체 가능
+- **로컬 우선**: 인터넷 연결 불필요
+- **안전성**: 정책 엔진으로 위험 명령 차단
+- **확장성**: 새로운 tool 및 기능 쉽게 추가
+
+### 프로젝트 구조
 
 ```
 buddybot-ai/
-├── app/
-│   ├── main.py              # FastAPI 앱
-│   ├── config.py            # 환경변수 설정
-│   ├── logger.py            # 로깅 설정
-│   ├── dependencies.py      # FastAPI 의존성
-│   ├── api/                 # API 라우터
-│   ├── core/                # 핵심 로직
-│   │   ├── orchestrator.py  # 메인 오케스트레이터
-│   │   ├── intent_router.py # 인텐트 라우팅
-│   │   └── policy_engine.py # 정책 엔진
-│   ├── llm/                 # LLM 클라이언트
-│   ├── tools/               # 도구들
-│   ├── memory/              # 메모리 저장소
-│   ├── stt/                 # STT 서비스 (stub)
-│   └── tts/                 # TTS 서비스 (stub)
-├── tests/                   # 테스트
-├── scripts/                 # 스크립트
-└── data/                    # 데이터 디렉토리
+├── app/                    # 메인 애플리케이션
+│   ├── main.py            # FastAPI 앱 진입점
+│   ├── config.py          # 환경변수 설정
+│   ├── dependencies.py    # 의존성 주입
+│   ├── logger.py          # 로깅 설정
+│   ├── api/               # API 라우터
+│   │   ├── routes_chat.py     # 채팅 API
+│   │   ├── routes_health.py   # 건강 상태 API
+│   │   └── ...
+│   ├── core/              # 핵심 로직
+│   │   ├── orchestrator.py    # 메인 오케스트레이터
+│   │   ├── intent_router.py   # 의도 분류
+│   │   └── policy_engine.py   # 정책 엔진
+│   ├── llm/               # LLM 클라이언트
+│   ├── tools/             # 도구들
+│   ├── memory/            # 메모리 저장소
+│   ├── schemas/           # 데이터 모델
+│   ├── stt/               # STT 서비스 (준비중)
+│   └── tts/               # TTS 서비스 (준비중)
+├── scripts/               # 유틸리티 스크립트
+│   ├── dev_run.sh         # 개발 서버 실행
+│   ├── smoke_test.sh      # 스모크 테스트
+│   └── chat_cli.py        # CLI 채팅 클라이언트
+├── tests/                 # 테스트 코드
+├── data/                  # 데이터 디렉토리
+├── requirements.txt       # Python 의존성
+├── Dockerfile             # Docker 설정
+├── docker-compose.yml     # Docker Compose
+└── README.md              # 이 파일
 ```
 
 ## 🔮 향후 계획
