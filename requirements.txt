@@ -3,5 +3,6 @@ uvicorn[standard]
 pydantic
 requests
 python-dotenv
+pytz
 pytest
 pytest-asyncio
