@@ -379,38 +379,30 @@ buddybot-ai/
 └── data/                    # 데이터 디렉토리
 ```
 
-## 향후 ROS2 연동 계획
+## 🔮 향후 계획
 
-1. **ROS2 노드 추가**: `app/ros/` 디렉토리 생성
-2. **토픽 퍼블리셔/서브스크라이버**: 로봇 상태/명령 통신
-3. **서비스 인터페이스**: ROS2 서비스로 API 확장
-4. **실시간 데이터**: 센서 데이터 실시간 처리
-5. **네비게이션 연동**: move_base 등과 통합
+- **STT/TTS 연동**: 음성 입력/출력
+- **RAG 기능**: 문서 기반 Q&A
+- **ROS2 통합**: 실제 로봇 제어
+- **멀티모달**: 이미지 인식
+- **웹 UI**: 브라우저 기반 인터페이스
 
-### STT/TTS 연동 방법
+## 🤝 기여하기
 
-1. **STT (faster-whisper)**:
-   - `pip install faster-whisper`
-   - 오디오 입력 처리
-   - WhisperService 구현
+1. Fork this repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-2. **TTS (Piper)**:
-   - Piper 바이너리 설치
-   - 텍스트 입력 처리
-   - PiperService 구현
+## 📄 라이선스
 
-3. **API 확장**:
-   - `/stt/transcribe` POST
-   - `/tts/synthesize` POST
+이 프로젝트는 MIT 라이선스 하에 있습니다.
 
-## 개발 노트
+## 🙋‍♂️ 문의
 
-- 모든 코드는 타입힌트 포함
-- 예외처리 및 로깅 구현
-- 모듈화된 구조로 확장 용이
-- 현재 로봇 기능은 mock으로 구현 (실제 하드웨어 제어 없음)
-- 정책 엔진으로 위험 명령 차단
+질문이나 제안사항이 있으시면 Issue를 열어주세요!
 
-## 라이선스
+---
 
-MIT License
+**BuddyBot으로 즐거운 AI 경험 되세요! 🚀**
