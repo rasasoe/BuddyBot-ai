@@ -1,4 +1,5 @@
 import sqlite3
+import os
 from typing import Optional
 from app.config import Config
 from app.logger import logger
@@ -6,6 +7,7 @@ from app.logger import logger
 class MemoryStore:
     def __init__(self, db_path: str):
         self.db_path = db_path
+        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         self._init_db()
 
     def _init_db(self):
