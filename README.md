@@ -1,83 +1,128 @@
-# BuddyBot AI
+# 🤖 BuddyBot AI
 
-Jarvis 스타일의 로컬 AI 비서 서버. Raspberry Pi 5 기반 BuddyBot 로봇의 AI 서버 역할을 수행합니다.
+**Jarvis 스타일의 로컬 AI 비서 서버**  
+*Raspberry Pi 5 기반 BuddyBot 로봇의 AI 서버 역할을 수행합니다.*
 
-## 프로젝트 개요
+[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com/)
+[![Ollama](https://img.shields.io/badge/Ollama-qwen2.5:7b-orange.svg)](https://ollama.ai/)
 
-- **목표**: 로컬 AI 비서 서버
+## 📋 프로젝트 개요
+
+BuddyBot은 **자연어 기반 AI 비서**로, 명령어 대신 평범한 대화로 로봇을 제어하고 정보를 얻을 수 있습니다.
+
+### 🎯 주요 특징
+- **자연어 대화**: "안녕"부터 "서울 날씨 알려줘"까지 평범한 말로 소통
+- **로컬 우선**: 인터넷 연결 없이도 동작하는 로컬 AI
+- **모듈러 설계**: 각 기능이 독립적으로 확장 가능
+- **안전성**: 정책 엔진으로 위험한 명령 차단
+
+### 🛠️ 기술 스택
 - **플랫폼**: Ubuntu 24.04
 - **하드웨어**: RTX 4070 Ti (VRAM 11GB)
 - **LLM**: Ollama 기반 qwen2.5:7b
-- **STT**: faster-whisper 기반 (향후 구현)
-- **TTS**: Piper 기반 (향후 구현)
-- **API**: FastAPI
+- **프레임워크**: FastAPI
 - **저장소**: SQLite
+- **STT/TTS**: faster-whisper, Piper (향후 구현)
 - **로봇 연동**: ROS2 bridge 준비 (현재 mock)
 
-## 주요 기능
+## 💬 사용법
 
-1. 일반 대화 (Ollama LLM)
-2. 시간 조회 (타임존 지원)
-3. 날씨 조회 (OpenWeatherMap API)
-4. 메모리 저장/조회 (SQLite)
-5. 로봇 상태 조회 (mock)
-6. 로봇 명령 실행 (mock, 정책 검사)
+### 자연어 대화 예시
 
-## 설치 및 실행
+터미널에서 `python scripts/chat_cli.py` 실행 후:
 
-### 1. 환경 설정
+```
+🤖 BuddyBot과 대화를 시작합니다! (종료하려면 'exit' 입력)
+--------------------------------------------------
+나: 안녕 버디봇
+🤖 BuddyBot: 안녕하세요! 무엇을 도와드릴까요?
 
+나: 오늘 서울 날씨 어때?
+🤖 BuddyBot: 현재 서울은(는) 맑음 상태이고 기온은 15°C입니다.
+
+나: 지금 몇 시야?
+🤖 BuddyBot: 현재 시각은 2024-01-01 14:30:00 UTC입니다.
+
+나: 라이다 테스트 기억해줘
+🤖 BuddyBot: 알겠습니다. '라이다 테스트'를 저장해둘게요.
+
+나: 뭐 저장했지?
+🤖 BuddyBot: 저장된 내용은 '라이다 테스트'입니다.
+
+나: 배터리 얼마 남았어?
+🤖 BuddyBot: 현재 배터리는 85%, 모드는 idle입니다.
+
+나: exit
+🤖 BuddyBot: 안녕히 가세요!
+```
+
+### 지원 기능 상세
+
+| 기능 | 자연어 예시 | 설명 |
+|------|-------------|------|
+| **일반 대화** | "안녕", "오늘 기분 어때?" | Ollama LLM으로 자유 대화 |
+| **시간 조회** | "지금 몇 시야?", "현재 시각 알려줘" | 시스템 시간 확인 |
+| **날씨 조회** | "서울 날씨 어때?", "부산 기온 알려줘" | OpenWeatherMap API 사용 |
+| **메모리 저장** | "회의 일정 기억해줘", "중요한 거 저장해" | SQLite에 저장 |
+| **메모리 조회** | "뭐 저장했어?", "기억한 거 불러와" | 저장된 내용 확인 |
+| **로봇 상태** | "배터리 얼마야?", "로봇 상태 확인해" | 배터리, 모드 등 확인 |
+| **로봇 명령** | "정지해", "충전대로 가" | 정책 검사 후 실행 (mock) |
+
+## 🚀 빠른 시작 (5분만에 실행하기)
+
+### 1단계: 환경 준비
 ```bash
-# Python 3.11 가상환경 생성
-python3.11 -m venv venv
-source venv/bin/activate
+# Python 가상환경 생성 및 활성화
+python3 -m venv buddybot-env
+source buddybot-env/bin/activate  # Linux/Mac
+# buddybot-env\Scripts\activate   # Windows
+```
 
+### 2단계: 프로젝트 다운로드 및 설치
+```bash
 # 의존성 설치
 pip install -r requirements.txt
 ```
 
-### 2. 환경변수 설정
-
-`.env` 파일을 생성하고 `.env.example`을 참고하여 설정:
-
+### 3단계: 환경변수 설정
 ```bash
+# .env 파일 생성
 cp .env.example .env
-# .env 파일 편집
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=qwen2.5:7b
-OPENWEATHER_API_KEY=your_api_key_here
-SQLITE_PATH=./data/buddybot.db
+
+# .env 파일 편집 (필수 설정만)
+# OPENWEATHER_API_KEY=your_api_key_here  # 날씨 기능용
+# 나머지는 기본값으로 OK
 ```
 
-### 3. Ollama 설치 및 모델 다운로드
-
+### 4단계: Ollama 설치 및 모델 준비
 ```bash
-# Ollama 설치 (Ubuntu)
+# Ollama 설치 (Ubuntu/Debian)
 curl -fsSL https://ollama.ai/install.sh | sh
 
-# 모델 다운로드
+# qwen2.5:7b 모델 다운로드 (약 4GB)
 ollama pull qwen2.5:7b
 
-# Ollama 서버 실행 (백그라운드)
+# Ollama 서버 백그라운드 실행
 ollama serve
 ```
 
-### 4. 서버 실행
-
+### 5단계: 서버 실행
 ```bash
-# 개발 모드
+# 방법 1: 개발 모드 (자동 재시작)
 ./scripts/dev_run.sh
 
-# 또는 직접 실행
-uvicorn app.main:app --host 0.0.0.0 --port 8000
+# 방법 2: 직접 실행
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### 5. Docker 실행
-
+### 6단계: 테스트하기
 ```bash
-# Docker Compose로 실행
-docker-compose up --build
+# 새 터미널에서 CLI로 대화 시작
+python scripts/chat_cli.py
 ```
+
+**🎉 성공! 이제 자연어로 BuddyBot과 대화할 수 있습니다!**
 
 ## API 엔드포인트
 
@@ -94,21 +139,29 @@ docker-compose up --build
 ```
 
 ### POST /chat
-일반 대화
+자연어 기반 대화 및 도구 자동 호출
 
 **요청:**
 ```json
 {
-  "message": "안녕하세요"
+  "message": "서울 날씨 알려줘"
 }
 ```
 
 **응답:**
 ```json
 {
-  "response": "안녕하세요! 무엇을 도와드릴까요?"
+  "response": "현재 서울은(는) 연무 상태이고 기온은 12.7°C입니다."
 }
 ```
+
+**추가 예시:**
+
+- 시간: `"지금 몇 시야?"` → `"현재 시각은 2024-01-01 15:32:00 UTC입니다."`
+- 메모리 저장: `"라이다 테스트 기억해줘"` → `"알겠습니다. '라이다 테스트'를 저장해둘게요."`
+- 메모리 조회: `"뭐 저장했지?"` → `"저장된 내용은 '라이다 테스트'입니다."`
+- 로봇 상태: `"배터리 상태 어때?"` → `"현재 배터리는 85%, 모드는 idle입니다."`
+- 일반 대화: `"안녕하세요"` → `"안녕하세요! 무엇을 도와드릴까요?"`
 
 ### GET /time
 현재 시간 조회
@@ -194,28 +247,113 @@ docker-compose up --build
 }
 ```
 
-## 테스트
+## 🔧 고급 설정
 
+### 환경변수 상세
+
+`.env` 파일에 설정 가능한 변수들:
+
+```bash
+# 필수 (날씨 기능 사용 시)
+OPENWEATHER_API_KEY=your_openweather_api_key
+
+# 선택 (기본값 사용 가능)
+OLLAMA_BASE_URL=http://localhost:11434      # Ollama 서버 주소
+OLLAMA_MODEL=qwen2.5:7b                     # 사용할 LLM 모델
+SQLITE_PATH=./data/buddybot.db              # 데이터베이스 경로
+BUDDYBOT_BASE_URL=http://localhost:8000     # API 서버 주소 (CLI용)
+```
+
+### API 직접 사용
+
+cURL로 직접 API 호출하기:
+
+```bash
+# 일반 대화
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"안녕하세요"}'
+
+# 날씨 조회
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"서울 날씨 알려줘"}'
+
+# 시간 조회
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"지금 몇 시야?"}'
+```
+
+### Docker 사용
+
+```bash
+# Docker Compose로 실행
+docker-compose up --build
+
+# 백그라운드 실행
+docker-compose up -d --build
+```
+
+## 🧪 테스트 및 검증
+
+### 자동 테스트 실행
 ```bash
 # 모든 테스트 실행
 pytest
 
-# 특정 테스트
+# 특정 테스트만 실행
 pytest tests/test_health.py
+pytest tests/test_memory.py
 ```
 
-## 스모크 테스트
-
+### 수동 테스트
 ```bash
+# 스모크 테스트 (기본 기능 검증)
 ./scripts/smoke_test.sh
 ```
 
-## 환경변수 설명
+### 건강 상태 확인
+```bash
+# 서버 상태 확인
+curl http://localhost:8000/health
+```
 
-- `OLLAMA_BASE_URL`: Ollama 서버 URL (기본: http://localhost:11434)
-- `OLLAMA_MODEL`: 사용할 LLM 모델 (기본: qwen2.5:7b)
-- `OPENWEATHER_API_KEY`: OpenWeatherMap API 키
-- `SQLITE_PATH`: SQLite 데이터베이스 경로 (기본: ./data/buddybot.db)
+## 🚨 문제 해결
+
+### 자주 발생하는 문제들
+
+**1. Ollama 연결 실패**
+```bash
+# Ollama 상태 확인
+ollama list
+
+# Ollama 재시작
+ollama serve
+```
+
+**2. 날씨 API 키 오류**
+```bash
+# OpenWeatherMap에서 무료 API 키 발급
+# https://openweathermap.org/api
+# .env 파일에 OPENWEATHER_API_KEY 설정
+```
+
+**3. 포트 충돌**
+```bash
+# 다른 포트 사용
+uvicorn app.main:app --host 0.0.0.0 --port 8001
+```
+
+**4. 메모리 부족**
+- qwen2.5:7b 대신 작은 모델 사용
+- `OLLAMA_MODEL=qwen2.5:3b`로 변경
+
+### 로그 확인
+```bash
+# 서버 로그 확인
+tail -f /tmp/buddybot.log
+```
 
 ## 아키텍처
 
