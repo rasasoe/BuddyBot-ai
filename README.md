@@ -26,7 +26,123 @@ BuddyBot은 **자연어 기반 AI 비서**로, 명령어 대신 평범한 대화
 - **STT/TTS**: faster-whisper, Piper (향후 구현)
 - **로봇 연동**: ROS2 bridge 준비 (현재 mock)
 
-## 💬 사용법
+## �️ 서버 관리
+
+### 서버 시작하기
+
+BuddyBot 서버를 시작하는 방법은 여러 가지가 있습니다:
+
+#### 방법 1: 개발 모드 (권장)
+```bash
+# 자동 재시작 및 디버그 모드
+./scripts/dev_run.sh
+```
+
+#### 방법 2: 직접 실행
+```bash
+# 기본 실행
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+# 개발 모드 (자동 재시작)
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+# 백그라운드 실행 (추천: 같은 터미널에서 CLI 사용 가능)
+uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+```
+
+#### 방법 3: Docker 사용
+```bash
+# Docker Compose로 실행
+docker-compose up --build
+
+# 백그라운드 실행
+docker-compose up -d --build
+```
+
+### 서버 중지하기
+
+#### 일반적인 중지
+```bash
+# 터미널에서 실행 중이라면 Ctrl+C
+# 또는 프로세스 찾기
+ps aux | grep uvicorn
+kill <프로세스ID>
+```
+
+#### 포트로 중지
+```bash
+# 포트 8000 사용 프로세스 찾기
+lsof -i :8000
+
+# 강제 종료
+kill -9 <프로세스ID>
+```
+
+#### Docker 중지
+```bash
+# Docker Compose 중지
+docker-compose down
+
+# 컨테이너 중지
+docker stop <컨테이너ID>
+```
+
+### 서버 상태 확인
+
+#### 건강 상태 확인
+```bash
+# API 상태 확인
+curl http://localhost:8000/health
+
+# 응답 예시
+{
+  "status": "healthy",
+  "ollama": "connected",
+  "sqlite": "connected"
+}
+```
+
+#### 프로세스 상태 확인
+```bash
+# 서버 프로세스 확인
+ps aux | grep uvicorn
+
+# 포트 사용 확인
+netstat -tlnp | grep 8000
+```
+
+#### 로그 확인
+```bash
+# 서버 로그 실시간 확인
+tail -f /tmp/buddybot.log
+
+# 최근 로그 50줄
+tail -50 /tmp/buddybot.log
+
+# Docker 로그
+docker-compose logs -f
+```
+
+### 자주 사용하는 명령어
+
+```bash
+# 빠른 서버 시작 (백그라운드)
+./scripts/dev_run.sh &
+
+# 상태 확인
+curl http://localhost:8000/health
+
+# CLI로 테스트 (같은 터미널에서 가능)
+python scripts/chat_cli.py
+
+# 로그 확인
+tail -f /tmp/buddybot.log
+
+# 서버 중지
+pkill -f uvicorn
+```
+
+## �💬 사용법
 
 ### 자연어 대화 예시
 
@@ -117,10 +233,21 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### 6단계: 테스트하기
+
+서버를 백그라운드에서 실행한 경우, 같은 터미널에서 CLI로 대화할 수 있습니다:
+
 ```bash
-# 새 터미널에서 CLI로 대화 시작
+# CLI 클라이언트 실행 (같은 터미널에서 가능)
 python scripts/chat_cli.py
+
+# 또는 직접 실행
+./scripts/chat_cli.py
 ```
+
+**💡 터미널 관리 팁:**
+- **하나의 터미널로 모두 실행**: 서버를 백그라운드(`&`)로 실행하면 같은 터미널에서 CLI 사용 가능
+- **별도 터미널 선호**: `tmux`나 `screen`으로 멀티플렉싱하거나, VS Code의 터미널 분할 사용
+- **서버만 실행**: API만 사용하고 CLI는 사용하지 않을 경우
 
 **🎉 성공! 이제 자연어로 BuddyBot과 대화할 수 있습니다!**
 
