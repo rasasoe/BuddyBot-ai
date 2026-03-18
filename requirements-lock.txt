@@ -20,6 +20,7 @@ python-dotenv==1.2.2
 pytz==2026.1.post1
 PyYAML==6.0.3
 requests==2.32.5
+setuptools==75.8.0
 starlette==0.52.1
 typing-inspection==0.4.2
 typing_extensions==4.15.0
