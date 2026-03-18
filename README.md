@@ -197,8 +197,11 @@ source buddybot-env/bin/activate  # Linux/Mac
 
 ### 2단계: 프로젝트 다운로드 및 설치
 ```bash
-# 의존성 설치
+# 의존성 설치 (개발용)
 pip install -r requirements.txt
+
+# 또는 정확한 버전 복원 (프로덕션용)
+pip install -r requirements-lock.txt
 ```
 
 ### 3단계: 환경변수 설정

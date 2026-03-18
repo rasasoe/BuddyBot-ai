@@ -32,11 +32,11 @@ def chat_with_buddybot():
             if not user_input:
                 continue
 
-            # API 요청
+            # API 요청 (timeout 120초로 증가)
             response = requests.post(
                 f"{BASE_URL}/chat",
                 json={"message": user_input},
-                timeout=30
+                timeout=120
             )
 
             if response.status_code == 200:
@@ -44,10 +44,21 @@ def chat_with_buddybot():
                 bot_response = data.get("response", "응답을 받지 못했습니다.")
                 print(f"🤖 BuddyBot: {bot_response}")
             else:
-                print(f"❌ 오류: {response.status_code} - {response.text}")
+                print(f"❌ 서버 오류: {response.status_code} - {response.text}")
 
+        except requests.exceptions.ConnectionError:
+            print("❌ 연결 오류: 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.")
+        except requests.exceptions.Timeout:
+            print("❌ 타임아웃: 서버 응답이 너무 오래 걸립니다. 잠시 후 다시 시도해주세요.")
+        except requests.exceptions.HTTPError as e:
+            print(f"❌ HTTP 오류: {e}")
+        except requests.exceptions.RequestException as e:
+            print(f"❌ 요청 오류: {e}")
         except KeyboardInterrupt:
             print("\n🤖 BuddyBot: 대화를 종료합니다.")
+            break
+        except Exception as e:
+            print(f"❌ 예상치 못한 오류: {e}")
             break
         except requests.RequestException as e:
             print(f"❌ 네트워크 오류: {e}")
