@@ -3,9 +3,18 @@ version: '3.8'
 services:
   buddybot:
     build: .
+    network_mode: "host"  # ROS 2 통신을 위해 호스트 네트워크 사용
     ports:
       - "8000:8000"
     volumes:
       - ./data:/app/data
+      - ./fastdds_config.xml:/app/fastdds_config.xml:ro
     env_file:
       - .env
+    environment:
+      - ROS_DOMAIN_ID=30
+      - FASTRTPS_DEFAULT_PROFILES_FILE=/app/fastdds_config.xml
+    restart: unless-stopped
+    # ROS 2 노드와의 통신을 위해 필요한 환경 설정
+    sysctls:
+      - net.ipv4.conf.all.rp_filter=0

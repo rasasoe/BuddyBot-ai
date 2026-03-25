@@ -7,3 +7,8 @@ pytz
 pytest
 pytest-asyncio
 setuptools
+# ROS 2 Integration (optional, install in ROS 2 environment)
+# rclpy
+# geometry-msgs
+# nav-msgs
+# sensor-msgs

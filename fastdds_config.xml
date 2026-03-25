@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dds xmlns="http://www.omg.org/dds/xmlschema/unified" 
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.omg.org/dds/xmlschema/unified
+     http://www.omg.org/spec/DDS-PSM-CXX/20190416/omg_dds_psm_cxx.xsd">
+    <profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+        <transport_descriptors>
+            <transport_descriptor>
+                <transport_id>default_udp</transport_id>
+                <type>UDPv4</type>
+            </transport_descriptor>
+        </transport_descriptors>
+        <participant profile_name="default_participant">
+            <rtps>
+                <transports>
+                    <transport_id>default_udp</transport_id>
+                </transports>
+            </rtps>
+        </participant>
+    </profiles>
+</dds>
