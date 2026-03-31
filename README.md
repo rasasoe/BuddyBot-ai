@@ -133,7 +133,7 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 서버컴이 없을 때:
 - Pi5 단독 모드 사용 가능
 - Pi5 로컬 UI 사용 가능
-- 기본 수동 조작 / 체크포인트 / 테스트 가능
+- 기본 수동 조작 / 체크포인트 / LiDAR 회피 시연 가능
 
 서버컴이 있을 때:
 - Assistant Mode 사용 가능
