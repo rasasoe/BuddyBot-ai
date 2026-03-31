@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BuddyBot Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">BuddyBot Command Center</p>
+        <h1>실제품처럼 보이는 버디봇 통합 관제 화면</h1>
+        <p class="lead">수동 조작, 사용자 추종, 음성 인식, AI 대화, 체크포인트 이동, 미니맵 분석을 한 화면에서 다룹니다.</p>
+      </div>
+      <div class="health-card">
+        <div class="status-row"><span>Assistant</span><strong id="health-ollama">확인 중</strong></div>
+        <div class="status-row"><span>Robot Bridge</span><strong id="health-robot">확인 중</strong></div>
+        <div class="status-row"><span>Storage</span><strong id="health-sqlite">확인 중</strong></div>
+      </div>
+    </section>
+
+    <section class="dashboard">
+      <article class="panel status-panel">
+        <div class="panel-header">
+          <h2>Robot Core</h2>
+          <button id="refresh-status" class="ghost">새로고침</button>
+        </div>
+        <dl class="status-grid">
+          <div><dt>배터리</dt><dd id="status-battery">-</dd></div>
+          <div><dt>모드</dt><dd id="status-mode">-</dd></div>
+          <div><dt>추종</dt><dd id="status-follow">-</dd></div>
+          <div><dt>활성 소스</dt><dd id="status-source">-</dd></div>
+          <div><dt>ROS2</dt><dd id="status-ros2">-</dd></div>
+          <div><dt>워크스페이스</dt><dd id="status-workspace">-</dd></div>
+        </dl>
+        <div class="mode-actions">
+          <button data-command="follow" class="accent">사용자 추종 시작</button>
+          <button data-command="follow_stop" class="secondary">사용자 추종 중지</button>
+          <button data-command="dock" class="secondary">도킹</button>
+          <button data-command="stop" class="danger">즉시 정지</button>
+        </div>
+      </article>
+
+      <article class="panel map-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Mini Map</h2>
+            <p class="mini-copy" id="map-summary-text">체크포인트를 불러오는 중입니다.</p>
+          </div>
+          <button id="refresh-map" class="ghost">분석 갱신</button>
+        </div>
+        <div class="map-stage">
+          <canvas id="map-canvas" width="720" height="420"></canvas>
+          <div class="map-overlay">
+            <span class="chip">로봇 위치: home_base 기준</span>
+            <span class="chip" id="waypoint-count-chip">체크포인트 0개</span>
+          </div>
+        </div>
+        <div class="waypoint-toolbar">
+          <select id="waypoint-select"></select>
+          <button id="go-selected" class="accent">선택 위치로 이동</button>
+        </div>
+        <div class="analysis-grid">
+          <div class="analysis-card">
+            <h3>체크포인트</h3>
+            <div id="waypoint-list" class="waypoint-list"></div>
+          </div>
+          <div class="analysis-card">
+            <h3>미니맵 분석</h3>
+            <div id="map-analysis" class="analysis-list"></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel control-panel">
+        <div class="panel-header">
+          <h2>Drive Pad</h2>
+          <button id="voice-btn" class="secondary">음성 듣기</button>
+        </div>
+        <div class="teleop">
+          <button data-manual="forward">앞으로</button>
+          <div class="teleop-row">
+            <button data-manual="left">좌회전</button>
+            <button data-manual="stop" class="danger">정지</button>
+            <button data-manual="right">우회전</button>
+          </div>
+          <button data-manual="backward">뒤로</button>
+        </div>
+        <form id="waypoint-form" class="waypoint-form">
+          <h3>체크포인트 저장</h3>
+          <input id="waypoint-name" type="text" placeholder="예: kitchen_lab">
+          <div class="triple">
+            <input id="waypoint-x" type="number" step="0.1" placeholder="x">
+            <input id="waypoint-y" type="number" step="0.1" placeholder="y">
+            <input id="waypoint-theta" type="number" step="0.1" placeholder="theta">
+          </div>
+          <button type="submit">체크포인트 저장</button>
+        </form>
+        <div class="quick-actions">
+          <button data-prompt="지금 몇 시야?">현재 시간</button>
+          <button data-prompt="서울 날씨 알려줘">서울 날씨</button>
+          <button data-prompt="로봇 상태 알려줘">로봇 상태</button>
+          <button data-prompt="주방으로 가줘">주방 이동</button>
+        </div>
+      </article>
+
+      <article class="panel chat-panel">
+        <div class="panel-header">
+          <h2>Voice + AI</h2>
+          <span class="mini-copy">브라우저 음성 인식과 음성 합성 사용</span>
+        </div>
+        <div id="chat-log" class="chat-log"></div>
+        <form id="chat-form" class="chat-form">
+          <input id="chat-input" type="text" placeholder="예: 따라와, 주방으로 가, 방 체크포인트 저장 x=1.2 y=0.6">
+          <button type="submit">보내기</button>
+        </form>
+      </article>
+    </section>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>
