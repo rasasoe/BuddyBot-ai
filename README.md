@@ -55,8 +55,13 @@
 ```bash
 git clone https://github.com/rasasoe/BuddyBot-ai.git
 cd BuddyBot-ai
-python -m pip install -r requirements.txt
+bash scripts/setup_server.sh
 ```
+
+위 스크립트가 자동으로 해주는 것:
+- `.venv` 생성
+- pip 업그레이드
+- `requirements.txt` 설치
 
 ## 선택 환경 변수
 
@@ -74,6 +79,7 @@ DEFAULT_CITY=Seoul
 ## 실행
 
 ```bash
+source .venv/bin/activate
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
