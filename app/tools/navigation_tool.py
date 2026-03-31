@@ -25,23 +25,19 @@ class NavigationTool:
     def list_waypoints(self) -> List[Dict[str, Any]]:
         data = self._load_data()
         waypoints = data.get("waypoints", {})
-        items = []
-        for name, item in waypoints.items():
-            pose = item.get("pose", {})
-            items.append(
-                {
-                    "name": name,
-                    "x": float(pose.get("x", 0.0)),
-                    "y": float(pose.get("y", 0.0)),
-                    "theta": float(pose.get("theta", 0.0)),
-                    "description": item.get("description", ""),
-                }
-            )
-        return items
+        return [
+            {
+                "name": name,
+                "x": float(item.get("pose", {}).get("x", 0.0)),
+                "y": float(item.get("pose", {}).get("y", 0.0)),
+                "theta": float(item.get("pose", {}).get("theta", 0.0)),
+                "description": item.get("description", ""),
+            }
+            for name, item in waypoints.items()
+        ]
 
     def get_waypoint(self, name: str) -> Optional[Dict[str, Any]]:
-        data = self._load_data()
-        return data.get("waypoints", {}).get(name)
+        return self._load_data().get("waypoints", {}).get(name)
 
     def save_waypoint(
         self,
@@ -82,7 +78,7 @@ class NavigationTool:
         if not items:
             return {
                 "count": 0,
-                "bounds": {"min_x": 0, "max_x": 0, "min_y": 0, "max_y": 0},
+                "bounds": {"min_x": -2.0, "max_x": 2.0, "min_y": -2.0, "max_y": 2.0},
                 "zones": [],
                 "recommended_destinations": [],
                 "summary": "등록된 체크포인트가 아직 없습니다.",
@@ -92,22 +88,32 @@ class NavigationTool:
         ys = [item["y"] for item in items]
         bounds = {"min_x": min(xs), "max_x": max(xs), "min_y": min(ys), "max_y": max(ys)}
 
-        zone_map: Dict[str, List[str]] = {
-            "north_west": [],
-            "north_east": [],
-            "south_west": [],
-            "south_east": [],
-            "center": [],
+        zone_names = {
+            "north_west": "좌상단 구역",
+            "north_east": "우상단 구역",
+            "south_west": "좌하단 구역",
+            "south_east": "우하단 구역",
+            "center": "중앙 구역",
         }
+        zone_map: Dict[str, List[str]] = {name: [] for name in zone_names}
+
         for item in items:
             zone_map[self._infer_zone(item["x"], item["y"], bounds)].append(item["name"])
 
-        zones = [{"name": zone, "points": points} for zone, points in zone_map.items() if points]
-        recommended = [item["name"] for item in sorted(items, key=lambda item: abs(item["x"]) + abs(item["y"]))[:4]]
+        zones = [
+            {"name": zone_names[zone], "points": points}
+            for zone, points in zone_map.items()
+            if points
+        ]
+        recommended = [
+            item["name"]
+            for item in sorted(items, key=lambda item: abs(item["x"]) + abs(item["y"]))[:4]
+        ]
         summary = (
             f"총 {len(items)}개의 체크포인트가 있습니다. "
-            f"가장 가까운 허브 후보는 {', '.join(recommended[:2])} 입니다."
+            f"현재 좌표 분포상 빠르게 테스트하기 좋은 위치는 {', '.join(recommended[:2])} 입니다."
         )
+
         return {
             "count": len(items),
             "bounds": bounds,

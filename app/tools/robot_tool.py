@@ -1,5 +1,4 @@
 import threading
-import time
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -55,7 +54,6 @@ class RobotTool:
         if not ROS2_AVAILABLE:
             logger.info("ROS 2 not available. RobotTool will run in mock mode.")
             return
-
         try:
             if not rclpy.ok():
                 rclpy.init(args=None)
@@ -124,7 +122,7 @@ class RobotTool:
         if normalized in {"manual", "move"}:
             return self._handle_manual_move(params)
 
-        return self._result(f"알 수 없는 명령입니다: {command}", success=False)
+        return self._result(f"지원하지 않는 명령입니다: {command}", success=False)
 
     def _handle_manual_move(self, params: Dict[str, float]) -> Dict[str, object]:
         direction = str(params.get("direction", "forward")).lower()

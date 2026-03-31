@@ -14,8 +14,8 @@
     <section class="hero">
       <div class="hero-copy">
         <p class="eyebrow">BuddyBot Command Center</p>
-        <h1>실제품처럼 보이는 버디봇 통합 관제 화면</h1>
-        <p class="lead">수동 조작, 사용자 추종, 음성 인식, AI 대화, 체크포인트 이동, 미니맵 분석을 한 화면에서 다룹니다.</p>
+        <h1>서버컴에서 보는 버디봇 통합 관제 화면</h1>
+        <p class="lead">수동 조작, 사용자 추종, 음성 입력, AI 대화, 체크포인트 저장/이동, 미니맵 분석을 한 화면에서 다룹니다.</p>
       </div>
       <div class="health-card">
         <div class="status-row"><span>Assistant</span><strong id="health-ollama">확인 중</strong></div>
@@ -28,7 +28,7 @@
       <article class="panel status-panel">
         <div class="panel-header">
           <h2>Robot Core</h2>
-          <button id="refresh-status" class="ghost">새로고침</button>
+          <button id="refresh-status" class="ghost">상태 새로고침</button>
         </div>
         <dl class="status-grid">
           <div><dt>배터리</dt><dd id="status-battery">-</dd></div>
@@ -52,12 +52,12 @@
             <h2>Mini Map</h2>
             <p class="mini-copy" id="map-summary-text">체크포인트를 불러오는 중입니다.</p>
           </div>
-          <button id="refresh-map" class="ghost">분석 갱신</button>
+          <button id="refresh-map" class="ghost">맵 분석 갱신</button>
         </div>
         <div class="map-stage">
           <canvas id="map-canvas" width="720" height="420"></canvas>
           <div class="map-overlay">
-            <span class="chip">로봇 위치: home_base 기준</span>
+            <span class="chip">맵 클릭으로 좌표 선택 가능</span>
             <span class="chip" id="waypoint-count-chip">체크포인트 0개</span>
           </div>
         </div>
@@ -67,11 +67,11 @@
         </div>
         <div class="analysis-grid">
           <div class="analysis-card">
-            <h3>체크포인트</h3>
+            <h3>체크포인트 목록</h3>
             <div id="waypoint-list" class="waypoint-list"></div>
           </div>
           <div class="analysis-card">
-            <h3>미니맵 분석</h3>
+            <h3>구역 분석</h3>
             <div id="map-analysis" class="analysis-list"></div>
           </div>
         </div>
@@ -80,7 +80,7 @@
       <article class="panel control-panel">
         <div class="panel-header">
           <h2>Drive Pad</h2>
-          <button id="voice-btn" class="secondary">음성 듣기</button>
+          <button id="voice-btn" class="secondary">음성 입력</button>
         </div>
         <div class="teleop">
           <button data-manual="forward">앞으로</button>
@@ -99,6 +99,7 @@
             <input id="waypoint-y" type="number" step="0.1" placeholder="y">
             <input id="waypoint-theta" type="number" step="0.1" placeholder="theta">
           </div>
+          <p class="hint">미니맵을 클릭하면 x, y 입력 칸이 자동으로 채워집니다.</p>
           <button type="submit">체크포인트 저장</button>
         </form>
         <div class="quick-actions">
@@ -112,16 +113,16 @@
       <article class="panel chat-panel">
         <div class="panel-header">
           <h2>Voice + AI</h2>
-          <span class="mini-copy">브라우저 음성 인식과 음성 합성 사용</span>
+          <span class="mini-copy">브라우저 음성 입력과 음성 출력 사용</span>
         </div>
         <div id="chat-log" class="chat-log"></div>
         <form id="chat-form" class="chat-form">
-          <input id="chat-input" type="text" placeholder="예: 따라와, 주방으로 가, 방 체크포인트 저장 x=1.2 y=0.6">
+          <input id="chat-input" type="text" placeholder="예: 따라와, 주방으로 가, 체크포인트 kitchen 저장 x=1.2 y=0.6">
           <button type="submit">보내기</button>
         </form>
       </article>
     </section>
-  </main>
   <script src="/static/app.js"></script>
+  </main>
 </body>
 </html>

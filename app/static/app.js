@@ -11,6 +11,7 @@ const mapSummaryText = document.getElementById("map-summary-text");
 const waypointCountChip = document.getElementById("waypoint-count-chip");
 
 let waypointState = [];
+let currentBounds = null;
 
 function addMessage(role, text) {
   const div = document.createElement("div");
@@ -57,7 +58,7 @@ async function refreshStatus() {
   const status = await response.json();
   document.getElementById("status-battery").textContent = `${status.battery}%`;
   document.getElementById("status-mode").textContent = status.mode;
-  document.getElementById("status-follow").textContent = status.follow_enabled ? "켜짐" : "꺼짐";
+  document.getElementById("status-follow").textContent = status.follow_enabled ? "활성" : "비활성";
   document.getElementById("status-source").textContent = status.active_source;
   document.getElementById("status-ros2").textContent = status.ros2_connected ? "연결됨" : "mock";
   document.getElementById("status-workspace").textContent = status.buddybot_workspace || "-";
@@ -71,10 +72,11 @@ async function refreshWaypoints() {
   const waypointData = await waypointRes.json();
   const summary = await summaryRes.json();
   waypointState = waypointData.items || [];
+  currentBounds = summary.bounds || null;
   renderWaypointSelect();
   renderWaypointList();
   renderMapAnalysis(summary);
-  drawMap(waypointState, summary.bounds || null);
+  drawMap(waypointState, currentBounds);
 }
 
 function renderWaypointSelect() {
@@ -92,7 +94,7 @@ function renderWaypointList() {
   waypointState.forEach((item) => {
     const el = document.createElement("div");
     el.className = "waypoint-item";
-    el.innerHTML = `<strong>${item.name}</strong><span>${item.description || "설명 없음"}</span><span>x=${item.x}, y=${item.y}, θ=${item.theta}</span>`;
+    el.innerHTML = `<strong>${item.name}</strong><span>${item.description || "설명 없음"}</span><span>x=${item.x}, y=${item.y}, theta=${item.theta}</span>`;
     waypointList.appendChild(el);
   });
   waypointCountChip.textContent = `체크포인트 ${waypointState.length}개`;
@@ -138,10 +140,12 @@ function drawMap(items, bounds) {
   const maxX = bounds ? bounds.max_x : Math.max(...items.map((item) => item.x));
   const minY = bounds ? bounds.min_y : Math.min(...items.map((item) => item.y));
   const maxY = bounds ? bounds.max_y : Math.max(...items.map((item) => item.y));
+  const rangeX = Math.max(maxX - minX, 1);
+  const rangeY = Math.max(maxY - minY, 1);
 
   const pad = 50;
-  const scaleX = (value) => pad + ((value - minX) / Math.max(maxX - minX, 1)) * (width - pad * 2);
-  const scaleY = (value) => height - pad - ((value - minY) / Math.max(maxY - minY, 1)) * (height - pad * 2);
+  const scaleX = (value) => pad + ((value - minX) / rangeX) * (width - pad * 2);
+  const scaleY = (value) => height - pad - ((value - minY) / rangeY) * (height - pad * 2);
 
   items.forEach((item, index) => {
     const x = scaleX(item.x);
@@ -188,6 +192,11 @@ async function saveWaypoint(event) {
   await refreshWaypoints();
 }
 
+function fillWaypointInputs(x, y) {
+  document.getElementById("waypoint-x").value = x.toFixed(2);
+  document.getElementById("waypoint-y").value = y.toFixed(2);
+}
+
 function speak(text) {
   if (!("speechSynthesis" in window)) return;
   const utterance = new SpeechSynthesisUtterance(text);
@@ -224,6 +233,25 @@ document.getElementById("refresh-map").addEventListener("click", refreshWaypoint
 document.getElementById("go-selected").addEventListener("click", goSelectedWaypoint);
 document.getElementById("waypoint-form").addEventListener("submit", saveWaypoint);
 
+mapCanvas.addEventListener("click", (event) => {
+  if (!currentBounds) return;
+
+  const rect = mapCanvas.getBoundingClientRect();
+  const pad = 50;
+  const usableWidth = mapCanvas.width - pad * 2;
+  const usableHeight = mapCanvas.height - pad * 2;
+  const localX = Math.min(Math.max(event.clientX - rect.left, pad), mapCanvas.width - pad);
+  const localY = Math.min(Math.max(event.clientY - rect.top, pad), mapCanvas.height - pad);
+
+  const rangeX = Math.max(currentBounds.max_x - currentBounds.min_x, 1);
+  const rangeY = Math.max(currentBounds.max_y - currentBounds.min_y, 1);
+  const worldX = currentBounds.min_x + ((localX - pad) / usableWidth) * rangeX;
+  const worldY = currentBounds.min_y + ((mapCanvas.height - pad - localY) / usableHeight) * rangeY;
+
+  fillWaypointInputs(worldX, worldY);
+  addMessage("bot", `미니맵 좌표를 선택했습니다. x=${worldX.toFixed(2)}, y=${worldY.toFixed(2)}`);
+});
+
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (SpeechRecognition) {
   const recognition = new SpeechRecognition();
@@ -243,14 +271,14 @@ if (SpeechRecognition) {
   });
 
   recognition.addEventListener("end", () => {
-    voiceBtn.textContent = "음성 듣기";
+    voiceBtn.textContent = "음성 입력";
   });
 } else {
   voiceBtn.disabled = true;
-  voiceBtn.textContent = "브라우저 미지원";
+  voiceBtn.textContent = "브라우저 음성 미지원";
 }
 
-addMessage("bot", "버디봇 커맨드 센터가 준비됐습니다. 수동 조작, 추종, 음성 대화, 체크포인트 이동을 바로 실행할 수 있습니다.");
+addMessage("bot", "버디봇 관제 화면이 준비되었습니다. 수동 조작, 추종, 체크포인트 저장과 이동을 바로 시작할 수 있습니다.");
 refreshHealth();
 refreshStatus();
 refreshWaypoints();
