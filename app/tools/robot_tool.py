@@ -10,6 +10,7 @@ try:
     import rclpy
     from geometry_msgs.msg import Twist
     from rclpy.node import Node
+    from std_msgs.msg import Bool, String
 
     ROS2_AVAILABLE = True
 except ImportError:
@@ -17,6 +18,8 @@ except ImportError:
     rclpy = None
     Twist = None
     Node = object
+    Bool = None
+    String = None
 
 
 class RobotTool:
@@ -47,6 +50,9 @@ class RobotTool:
         self.use_ros2 = False
         self._ros_node = None
         self._manual_pub = None
+        self._follow_pub = None
+        self._waypoint_goal_pub = None
+        self._nav_cancel_pub = None
 
         self._init_ros2()
 
@@ -59,6 +65,9 @@ class RobotTool:
                 rclpy.init(args=None)
             self._ros_node = Node("buddybot_ai_bridge")
             self._manual_pub = self._ros_node.create_publisher(Twist, "/cmd_vel_manual", 10)
+            self._follow_pub = self._ros_node.create_publisher(Bool, "/follow/enabled", 10)
+            self._waypoint_goal_pub = self._ros_node.create_publisher(String, "/nav/waypoint_goal", 10)
+            self._nav_cancel_pub = self._ros_node.create_publisher(String, "/nav/cancel", 10)
             self.use_ros2 = True
             logger.info("RobotTool connected to ROS 2 topics.")
         except Exception as exc:
@@ -100,24 +109,33 @@ class RobotTool:
             self.manual_enabled = False
             self.nav_state = "stopped"
             self.active_source = "manual_stop"
-            self._publish_manual_velocity(0.0, 0.0)
+            self._publish_follow_enabled(False)
+            self._cancel_navigation()
+            self._publish_manual_velocity(0.0, 0.0, 0.0)
             return self._result("로봇을 정지했습니다.")
         if normalized == "dock":
             self.follow_enabled = False
             self.manual_enabled = False
             self.nav_state = "docking"
             self.active_source = "nav"
-            return self._result("도킹 모드로 전환했습니다.")
+            self._publish_follow_enabled(False)
+            self._cancel_navigation()
+            self._publish_navigation_goal("charging_station")
+            return self._result("충전 스테이션으로 이동 요청을 보냈습니다.")
         if normalized in {"follow", "follow_start"}:
             self.follow_enabled = True
             self.manual_enabled = False
             self.nav_state = "tracking_user"
             self.active_source = "follow"
+            self._publish_manual_velocity(0.0, 0.0, 0.0)
+            self._cancel_navigation()
+            self._publish_follow_enabled(True)
             return self._result("사용자 추종을 시작했습니다.")
         if normalized in {"follow_stop", "unfollow"}:
             self.follow_enabled = False
             self.nav_state = "idle"
             self.active_source = "idle"
+            self._publish_follow_enabled(False)
             return self._result("사용자 추종을 중지했습니다.")
         if normalized in {"manual", "move"}:
             return self._handle_manual_move(params)
@@ -130,17 +148,27 @@ class RobotTool:
         duration = float(params.get("duration", 1.5))
 
         linear_x = 0.0
+        linear_y = 0.0
         angular_z = 0.0
         if direction == "forward":
             linear_x = speed
         elif direction == "backward":
             linear_x = -speed
+        elif direction == "strafe_left":
+            linear_y = speed
+        elif direction == "strafe_right":
+            linear_y = -speed
         elif direction == "left":
             angular_z = speed
         elif direction == "right":
             angular_z = -speed
+        elif direction == "rotate_left":
+            angular_z = speed
+        elif direction == "rotate_right":
+            angular_z = -speed
         elif direction == "stop":
             linear_x = 0.0
+            linear_y = 0.0
             angular_z = 0.0
         else:
             return self._result(f"지원하지 않는 수동 이동 방향입니다: {direction}", success=False)
@@ -149,21 +177,55 @@ class RobotTool:
         self.manual_enabled = direction != "stop"
         self.nav_state = "manual_control"
         self.active_source = "manual"
-        self._publish_manual_velocity(linear_x, angular_z)
+        self._publish_follow_enabled(False)
+        self._cancel_navigation()
+        self._publish_manual_velocity(linear_x, linear_y, angular_z)
 
         if direction != "stop" and duration > 0:
-            timer = threading.Timer(duration, self._publish_manual_velocity, args=(0.0, 0.0))
+            timer = threading.Timer(duration, self._publish_manual_velocity, args=(0.0, 0.0, 0.0))
             timer.daemon = True
             timer.start()
 
         return self._result(f"수동 조작: {direction}, 속도 {speed}, 시간 {duration}초")
 
-    def _publish_manual_velocity(self, linear_x: float, angular_z: float) -> None:
-        self.last_command = f"manual({linear_x:.2f},{angular_z:.2f})"
+    def _publish_follow_enabled(self, enabled: bool) -> None:
+        if not self.use_ros2 or self._follow_pub is None:
+            logger.info("[MOCK] publish /follow/enabled %s", enabled)
+            return
+
+        msg = Bool()
+        msg.data = bool(enabled)
+        self._follow_pub.publish(msg)
+
+    def _publish_navigation_goal(self, name: str) -> None:
+        if not self.use_ros2 or self._waypoint_goal_pub is None:
+            logger.info("[MOCK] publish /nav/waypoint_goal %s", name)
+            return
+
+        msg = String()
+        msg.data = name
+        self._waypoint_goal_pub.publish(msg)
+
+    def _cancel_navigation(self) -> None:
+        if not self.use_ros2 or self._nav_cancel_pub is None:
+            logger.info("[MOCK] publish /nav/cancel")
+            return
+
+        msg = String()
+        msg.data = "cancel"
+        self._nav_cancel_pub.publish(msg)
+
+    def _publish_manual_velocity(self, linear_x: float, linear_y: float, angular_z: float) -> None:
+        self.last_command = f"manual({linear_x:.2f},{linear_y:.2f},{angular_z:.2f})"
 
         if not self.use_ros2 or self._manual_pub is None:
-            logger.info("[MOCK] publish /cmd_vel_manual linear_x=%s angular_z=%s", linear_x, angular_z)
-            if linear_x == 0.0 and angular_z == 0.0:
+            logger.info(
+                "[MOCK] publish /cmd_vel_manual linear_x=%s linear_y=%s angular_z=%s",
+                linear_x,
+                linear_y,
+                angular_z,
+            )
+            if linear_x == 0.0 and linear_y == 0.0 and angular_z == 0.0:
                 self.manual_enabled = False
                 if not self.follow_enabled and self.nav_state == "manual_control":
                     self.nav_state = "idle"
@@ -172,10 +234,11 @@ class RobotTool:
 
         twist = Twist()
         twist.linear.x = linear_x
+        twist.linear.y = linear_y
         twist.angular.z = angular_z
         self._manual_pub.publish(twist)
 
-        if linear_x == 0.0 and angular_z == 0.0:
+        if linear_x == 0.0 and linear_y == 0.0 and angular_z == 0.0:
             self.manual_enabled = False
             if not self.follow_enabled and self.nav_state == "manual_control":
                 self.nav_state = "idle"

@@ -42,6 +42,7 @@ async function sendRobotCommand(command, params = {}) {
   });
   const data = await response.json();
   addMessage("bot", data.message);
+  speak(data.message);
   await refreshStatus();
 }
 
@@ -171,6 +172,8 @@ async function goSelectedWaypoint() {
   });
   const data = await response.json();
   addMessage("bot", data.message);
+  speak(data.message);
+  await refreshStatus();
 }
 
 async function saveWaypoint(event) {

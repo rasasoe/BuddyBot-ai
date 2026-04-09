@@ -38,9 +38,9 @@ class IntentRouter:
             return "robot_stop"
         if any(word in text for word in ["도킹", "충전", "dock", "charger"]):
             return "robot_dock"
-        if any(word in text for word in ["추종 시작", "따라와", "follow me", "follow on"]):
+        if any(word in text for word in ["추종 시작", "따라와", "follow me", "follow on", "따라와줘"]):
             return "robot_follow_start"
-        if any(word in text for word in ["추종 중지", "따라오지마", "follow off", "unfollow"]):
+        if any(word in text for word in ["추종 중지", "따라오지마", "follow off", "unfollow", "추종 꺼"]):
             return "robot_follow_stop"
         if any(word in text for word in ["체크포인트", "웨이포인트", "waypoint"]) and any(
             word in text for word in ["저장", "기록", "save", "create"]
@@ -102,10 +102,18 @@ class IntentRouter:
     def _extract_direction(text: str) -> str:
         if "뒤로" in text or "backward" in text:
             return "backward"
-        if "왼쪽" in text or "left" in text:
-            return "left"
-        if "오른쪽" in text or "right" in text:
-            return "right"
+        if any(word in text for word in ["좌회전", "왼쪽 회전", "rotate left", "turn left"]):
+            return "rotate_left"
+        if any(word in text for word in ["우회전", "오른쪽 회전", "rotate right", "turn right"]):
+            return "rotate_right"
+        if any(word in text for word in ["왼쪽으로", "왼쪽 이동", "strafe left", "slide left"]):
+            return "strafe_left"
+        if any(word in text for word in ["오른쪽으로", "오른쪽 이동", "strafe right", "slide right"]):
+            return "strafe_right"
+        if "left" in text:
+            return "rotate_left"
+        if "right" in text:
+            return "rotate_right"
         return "forward"
 
     @staticmethod

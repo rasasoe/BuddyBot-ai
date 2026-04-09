@@ -2,9 +2,22 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import yaml
+import json
 
 from app.config import Config
 from app.logger import logger
+
+try:
+    import rclpy
+    from rclpy.node import Node
+    from std_msgs.msg import String
+
+    ROS2_AVAILABLE = True
+except ImportError:
+    ROS2_AVAILABLE = False
+    rclpy = None
+    Node = object
+    String = None
 
 
 class NavigationTool:
@@ -21,6 +34,27 @@ class NavigationTool:
             / "config"
             / "waypoints.yaml"
         )
+        self.use_ros2 = False
+        self._ros_node = None
+        self._goal_pub = None
+        self._save_pub = None
+        self._init_ros2()
+
+    def _init_ros2(self) -> None:
+        if not ROS2_AVAILABLE:
+            logger.info("ROS 2 not available. NavigationTool will run in file-only mode.")
+            return
+        try:
+            if not rclpy.ok():
+                rclpy.init(args=None)
+            self._ros_node = Node("buddybot_ai_navigation_bridge")
+            self._goal_pub = self._ros_node.create_publisher(String, "/nav/waypoint_goal", 10)
+            self._save_pub = self._ros_node.create_publisher(String, "/nav/waypoint_save", 10)
+            self.use_ros2 = True
+            logger.info("NavigationTool connected to ROS 2 waypoint topics.")
+        except Exception as exc:
+            logger.warning("Failed to initialize NavigationTool ROS bridge: %s", exc)
+            self.use_ros2 = False
 
     def list_waypoints(self) -> List[Dict[str, Any]]:
         data = self._load_data()
@@ -55,6 +89,7 @@ class NavigationTool:
             "approach_distance": 0.5,
         }
         self._save_data(data)
+        self._publish_waypoint_save(name, data["waypoints"][name])
         logger.info("Saved waypoint %s to %s", name, self.waypoint_file)
         return data["waypoints"][name]
 
@@ -64,12 +99,20 @@ class NavigationTool:
             return {"success": False, "message": f"'{name}' 체크포인트를 찾지 못했습니다."}
 
         pose = waypoint.get("pose", {})
+        self._publish_waypoint_goal(name)
+        if self.use_ros2:
+            message = (
+                f"{name} 체크포인트로 이동 요청을 전송했습니다. "
+                f"(x={pose.get('x')}, y={pose.get('y')}, theta={pose.get('theta')})"
+            )
+        else:
+            message = (
+                f"{name} 체크포인트는 확인했지만 ROS2 연결이 없어 실제 이동은 시작하지 못했습니다. "
+                f"(x={pose.get('x')}, y={pose.get('y')}, theta={pose.get('theta')})"
+            )
         return {
             "success": True,
-            "message": (
-                f"{name} 체크포인트로 이동을 시작합니다. "
-                f"(x={pose.get('x')}, y={pose.get('y')}, theta={pose.get('theta')})"
-            ),
+            "message": message,
             "waypoint": waypoint,
         }
 
@@ -145,3 +188,30 @@ class NavigationTool:
         self.waypoint_file.parent.mkdir(parents=True, exist_ok=True)
         with self.waypoint_file.open("w", encoding="utf-8") as file:
             yaml.safe_dump(data, file, allow_unicode=True, sort_keys=False)
+
+    def _publish_waypoint_goal(self, name: str) -> None:
+        if not self.use_ros2 or self._goal_pub is None:
+            logger.info("[MOCK] publish /nav/waypoint_goal %s", name)
+            return
+        msg = String()
+        msg.data = name
+        self._goal_pub.publish(msg)
+
+    def _publish_waypoint_save(self, name: str, waypoint: Dict[str, Any]) -> None:
+        if not self.use_ros2 or self._save_pub is None:
+            logger.info("[MOCK] publish /nav/waypoint_save %s", name)
+            return
+        pose = waypoint.get("pose", {})
+        msg = String()
+        msg.data = json.dumps(
+            {
+                "name": name,
+                "x": float(pose.get("x", 0.0)),
+                "y": float(pose.get("y", 0.0)),
+                "theta": float(pose.get("theta", 0.0)),
+                "description": waypoint.get("description", ""),
+                "approach_distance": float(waypoint.get("approach_distance", 0.5)),
+            },
+            ensure_ascii=True,
+        )
+        self._save_pub.publish(msg)
