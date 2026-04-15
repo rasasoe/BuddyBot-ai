@@ -22,34 +22,46 @@ class IntentRouter:
 
     @staticmethod
     def route(message: str) -> Optional[str]:
-        text = message.lower()
+        text = message.lower().strip()
 
         if any(word in text for word in ["날씨", "weather", "기온", "온도"]):
             return "weather"
         if any(word in text for word in ["시간", "몇 시", "몇시", "time", "시각"]):
             return "time"
-        if any(word in text for word in ["기억해", "저장해", "메모해", "save", "remember"]):
+        if any(word in text for word in ["기억해", "기억해줘", "메모해", "메모 저장", "save", "remember"]):
             return "memory_save"
-        if any(word in text for word in ["뭐 저장", "불러", "기억한", "메모 보여", "retrieve", "recall"]):
+        if any(word in text for word in ["불러", "기억나", "메모 보여", "retrieve", "recall"]):
             return "memory_get"
         if any(word in text for word in ["상태", "배터리", "robot status", "status"]) and "날씨" not in text:
             return "robot_status"
         if any(word in text for word in ["정지", "멈춰", "스톱", "stop"]):
             return "robot_stop"
-        if any(word in text for word in ["도킹", "충전", "dock", "charger"]):
+        if any(word in text for word in ["귀환", "충전", "dock", "charger"]):
             return "robot_dock"
-        if any(word in text for word in ["추종 시작", "따라와", "follow me", "follow on", "따라와줘"]):
+        if any(
+            word in text
+            for word in ["추종 시작", "따라와", "follow me", "follow on", "따라와줘", "추종 켜"]
+        ):
             return "robot_follow_start"
-        if any(word in text for word in ["추종 중지", "따라오지마", "follow off", "unfollow", "추종 꺼"]):
+        if any(
+            word in text
+            for word in ["추종 중지", "따라오지 마", "follow off", "unfollow", "추종 꺼"]
+        ):
             return "robot_follow_stop"
         if any(word in text for word in ["체크포인트", "웨이포인트", "waypoint"]) and any(
             word in text for word in ["저장", "기록", "save", "create"]
         ):
             return "nav_save_waypoint"
-        if any(word in text for word in ["이동", "가줘", "가자", "navigate", "go to", "안내해"]):
-            if any(word in text for word in ["주방", "방", "거실", "문", "도어", "home", "base", "kitchen", "bedroom"]):
+        if any(word in text for word in ["이동", "가줘", "가자", "navigate", "go to", "안내"]):
+            if any(
+                word in text
+                for word in ["주방", "부엌", "거실", "방", "침실", "home", "base", "kitchen", "bedroom"]
+            ):
                 return "nav_goto"
-        if any(word in text for word in ["앞으로", "뒤로", "왼쪽", "오른쪽", "manual", "수동"]):
+        if any(
+            word in text
+            for word in ["앞으로", "뒤로", "왼쪽", "오른쪽", "manual", "수동", "회전", "이동"]
+        ):
             return "robot_manual"
         return "chat"
 
@@ -67,7 +79,7 @@ class IntentRouter:
             slots["key"] = "user_memory"
         elif intent == "robot_manual":
             slots["direction"] = IntentRouter._extract_direction(text)
-            duration_match = re.search(r"(\d+(?:\.\d+)?)\s*초", message)
+            duration_match = re.search(r"(\d+(?:\.\d+)?)\s*초", text)
             speed_match = re.search(r"(\d+(?:\.\d+)?)\s*(?:속도|speed)", text)
             slots["duration"] = float(duration_match.group(1)) if duration_match else 1.5
             slots["speed"] = float(speed_match.group(1)) if speed_match else 0.3
@@ -93,9 +105,10 @@ class IntentRouter:
 
     @staticmethod
     def _extract_memory_content(message: str) -> str:
-        for marker in ["기억해줘", "기억해", "저장해줘", "저장해", "메모해줘", "메모해"]:
+        for marker in ["기억해줘", "기억해", "메모해줘", "메모해", "저장해줘", "저장해"]:
             if marker in message:
-                return message.split(marker, 1)[0].strip() or "사용자 메모"
+                tail = message.split(marker, 1)[-1].strip()
+                return tail or "사용자 메모"
         return message.strip()
 
     @staticmethod
@@ -123,12 +136,12 @@ class IntentRouter:
             "주방": "kitchen",
             "부엌": "kitchen",
             "거실": "living_room_center",
-            "안방": "bedroom",
+            "침실": "bedroom",
             "방": "bedroom",
             "현관": "front_door",
             "문": "front_door",
             "충전": "charging_station",
-            "충전소": "charging_station",
+            "충전기": "charging_station",
             "홈": "home_base",
             "베이스": "home_base",
             "kitchen": "kitchen",
@@ -140,7 +153,7 @@ class IntentRouter:
             if key in text:
                 return value
 
-        match = re.search(r"(?:체크포인트|웨이포인트)\s+([a-zA-Z0-9_\-가-힣]+)", message)
+        match = re.search(r"(?:체크포인트|웨이포인트)\s+([a-zA-Z0-9_\-\uac00-\ud7a3 ]+)", message)
         if match:
             return match.group(1).strip().replace(" ", "_")
         return "home_base"

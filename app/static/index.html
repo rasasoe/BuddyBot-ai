@@ -14,8 +14,8 @@
     <section class="hero">
       <div class="hero-copy">
         <p class="eyebrow">BuddyBot Command Center</p>
-        <h1>서버컴에서 보는 버디봇 통합 관제 화면</h1>
-        <p class="lead">수동 조작, 사용자 추종, 음성 입력, AI 대화, 체크포인트 저장/이동, 미니맵 분석을 한 화면에서 다룹니다.</p>
+        <h1>서버에서 보는 버디봇 통합 관제 화면</h1>
+        <p class="lead">수동 조작, 사용자 추종, 음성 입력, AI 대화, 체크포인트 저장과 이동, 미니맵 분석을 한 화면에서 다룹니다.</p>
       </div>
       <div class="health-card">
         <div class="status-row"><span>Assistant</span><strong id="health-ollama">확인 중</strong></div>
@@ -41,7 +41,7 @@
         <div class="mode-actions">
           <button data-command="follow" class="accent">사용자 추종 시작</button>
           <button data-command="follow_stop" class="secondary">사용자 추종 중지</button>
-          <button data-command="dock" class="secondary">도킹</button>
+          <button data-command="dock" class="secondary">귀환</button>
           <button data-command="stop" class="danger">즉시 정지</button>
         </div>
       </article>
@@ -108,7 +108,7 @@
           <button type="submit">체크포인트 저장</button>
         </form>
         <div class="quick-actions">
-          <button data-prompt="지금 몇 시야?">현재 시간</button>
+          <button data-prompt="지금 몇 시야?">현재 시각</button>
           <button data-prompt="서울 날씨 알려줘">서울 날씨</button>
           <button data-prompt="로봇 상태 알려줘">로봇 상태</button>
           <button data-prompt="주방으로 가줘">주방 이동</button>
@@ -118,7 +118,7 @@
       <article class="panel chat-panel">
         <div class="panel-header">
           <h2>Voice + AI</h2>
-          <span class="mini-copy">브라우저 음성 입력과 음성 출력 사용</span>
+          <span class="mini-copy">브라우저 음성 입력과 음성 출력을 사용</span>
         </div>
         <div id="chat-log" class="chat-log"></div>
         <form id="chat-form" class="chat-form">
@@ -127,7 +127,7 @@
         </form>
       </article>
     </section>
-  <script src="/static/app.js"></script>
+    <script src="/static/app.js"></script>
   </main>
 </body>
 </html>

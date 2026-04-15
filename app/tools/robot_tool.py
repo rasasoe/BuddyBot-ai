@@ -158,13 +158,9 @@ class RobotTool:
             linear_y = speed
         elif direction == "strafe_right":
             linear_y = -speed
-        elif direction == "left":
+        elif direction in {"left", "rotate_left"}:
             angular_z = speed
-        elif direction == "right":
-            angular_z = -speed
-        elif direction == "rotate_left":
-            angular_z = speed
-        elif direction == "rotate_right":
+        elif direction in {"right", "rotate_right"}:
             angular_z = -speed
         elif direction == "stop":
             linear_x = 0.0

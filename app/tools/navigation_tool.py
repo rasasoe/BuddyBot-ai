@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-import yaml
 import json
+import yaml
 
 from app.config import Config
 from app.logger import logger
@@ -154,7 +154,7 @@ class NavigationTool:
         ]
         summary = (
             f"총 {len(items)}개의 체크포인트가 있습니다. "
-            f"현재 좌표 분포상 빠르게 테스트하기 좋은 위치는 {', '.join(recommended[:2])} 입니다."
+            f"현재 좌표 분포를 보면 테스트하기 좋은 위치는 {', '.join(recommended[:2])}입니다."
         )
 
         return {

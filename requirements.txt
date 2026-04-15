@@ -8,3 +8,6 @@ pytz
 pytest
 pytest-asyncio
 setuptools
+python-multipart
+faster-whisper
+edge-tts
