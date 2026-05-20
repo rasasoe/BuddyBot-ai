@@ -15,11 +15,11 @@
       <div class="hero-copy">
         <p class="eyebrow">BuddyBot Command Center</p>
         <h1>서버에서 보는 버디봇 통합 관제 화면</h1>
-        <p class="lead">수동 조작, 사용자 추종, 음성 입력, AI 대화, 체크포인트 저장과 이동, 미니맵 분석을 한 화면에서 다룹니다.</p>
+        <p class="lead">서버는 AI 대화, 날씨, 시간, 메모, STT/TTS를 담당합니다. 실제 로봇 이동은 Pi 로컬 음성 또는 Pi 패널에서 처리합니다.</p>
       </div>
       <div class="health-card">
         <div class="status-row"><span>Assistant</span><strong id="health-ollama">확인 중</strong></div>
-        <div class="status-row"><span>Robot Bridge</span><strong id="health-robot">확인 중</strong></div>
+        <div class="status-row"><span>Robot Boundary</span><strong id="health-robot">확인 중</strong></div>
         <div class="status-row"><span>Storage</span><strong id="health-sqlite">확인 중</strong></div>
       </div>
     </section>
@@ -39,10 +39,10 @@
           <div><dt>워크스페이스</dt><dd id="status-workspace">-</dd></div>
         </dl>
         <div class="mode-actions">
-          <button data-command="follow" class="accent">사용자 추종 시작</button>
-          <button data-command="follow_stop" class="secondary">사용자 추종 중지</button>
-          <button data-command="dock" class="secondary">귀환</button>
-          <button data-command="stop" class="danger">즉시 정지</button>
+          <button class="accent" disabled>추종은 Pi 로컬 음성</button>
+          <button class="secondary" disabled>정지는 Pi 로컬 안전 명령</button>
+          <button class="secondary" disabled>이동은 Pi 패널</button>
+          <button class="danger" disabled>서버 직접 제어 차단</button>
         </div>
       </article>
 
@@ -63,7 +63,7 @@
         </div>
         <div class="waypoint-toolbar">
           <select id="waypoint-select"></select>
-          <button id="go-selected" class="accent">선택 위치로 이동</button>
+          <button id="go-selected" class="accent" disabled>이동은 Pi 패널에서 실행</button>
         </div>
         <div class="analysis-grid">
           <div class="analysis-card">
@@ -83,18 +83,18 @@
           <button id="voice-btn" class="secondary">음성 입력</button>
         </div>
         <div class="teleop">
-          <button data-manual="forward">앞으로</button>
+          <button disabled>앞으로</button>
           <div class="teleop-row">
-            <button data-manual="strafe_left">좌이동</button>
-            <button data-manual="stop" class="danger">정지</button>
-            <button data-manual="strafe_right">우이동</button>
+            <button disabled>좌이동</button>
+            <button class="danger" disabled>정지</button>
+            <button disabled>우이동</button>
           </div>
           <div class="teleop-row">
-            <button data-manual="rotate_left">좌회전</button>
+            <button disabled>좌회전</button>
             <button data-command="status" class="secondary">상태</button>
-            <button data-manual="rotate_right">우회전</button>
+            <button disabled>우회전</button>
           </div>
-          <button data-manual="backward">뒤로</button>
+          <button disabled>뒤로</button>
         </div>
         <form id="waypoint-form" class="waypoint-form">
           <h3>체크포인트 저장</h3>
@@ -105,7 +105,7 @@
             <input id="waypoint-theta" type="number" step="0.1" placeholder="theta">
           </div>
           <p class="hint">미니맵을 클릭하면 x, y 입력 칸이 자동으로 채워집니다.</p>
-          <button type="submit">체크포인트 저장</button>
+          <button type="submit" disabled>저장은 Pi 패널에서 실행</button>
         </form>
         <div class="quick-actions">
           <button data-prompt="지금 몇 시야?">현재 시각</button>
@@ -122,7 +122,7 @@
         </div>
         <div id="chat-log" class="chat-log"></div>
         <form id="chat-form" class="chat-form">
-          <input id="chat-input" type="text" placeholder="예: 따라와, 주방으로 가, 체크포인트 kitchen 저장 x=1.2 y=0.6">
+          <input id="chat-input" type="text" placeholder="예: 서울 날씨, 지금 몇 시야, 메모해줘 내일 배터리 충전">
           <button type="submit">보내기</button>
         </form>
       </article>

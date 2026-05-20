@@ -6,3 +6,4 @@ __pycache__/
 .test_tmp/
 uvicorn*.log
 data/*.db
+pytest-cache-files-*/

@@ -20,7 +20,7 @@ from app.tts.speech_service import SpeechService
 
 app = FastAPI(
     title="BuddyBot AI",
-    description="Voice-ready BuddyBot control panel with assistant and robot bridge",
+    description="BuddyBot AI assistant for chat, memory, weather, time, STT, and TTS. Robot motion stays on the Pi.",
 )
 
 app.include_router(health_router)
@@ -56,10 +56,8 @@ def app_info():
                 "voice chat",
                 "weather and time assistant",
                 "memory save and recall",
-                "manual teleop",
-                "user follow toggle",
-                "semantic waypoint save and go",
-                "robot status dashboard",
+                "read-only robot status dashboard",
+                "local-only robot control boundary",
                 "optional offline whisper STT",
                 "optional edge/piper TTS",
             ],

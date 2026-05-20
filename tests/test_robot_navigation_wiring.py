@@ -37,7 +37,7 @@ def test_intent_router_handles_follow_and_manual_variants():
     assert strafe_slots["speed"] == pytest.approx(0.4)
 
 
-def test_robot_tool_follow_and_dock_publish_expected_commands(monkeypatch):
+def test_robot_tool_control_disabled_by_default(monkeypatch):
     tool = RobotTool()
     published = []
 
@@ -61,24 +61,19 @@ def test_robot_tool_follow_and_dock_publish_expected_commands(monkeypatch):
     )
 
     follow_result = tool.execute_command("follow")
-    assert follow_result["success"] is True
-    assert tool.follow_enabled is True
-    assert tool.nav_state == "tracking_user"
-    assert published[:3] == [
-        ("manual", 0.0, 0.0, 0.0),
-        ("cancel",),
-        ("follow", True),
-    ]
-
-    published.clear()
-    dock_result = tool.execute_command("dock")
-    assert dock_result["success"] is True
+    assert follow_result["success"] is False
     assert tool.follow_enabled is False
-    assert tool.nav_state == "docking"
-    assert published == [("follow", False), ("cancel",), ("goal", "charging_station")]
+    assert tool.nav_state == "idle"
+    assert published == []
+
+    dock_result = tool.execute_command("dock")
+    assert dock_result["success"] is False
+    assert tool.follow_enabled is False
+    assert tool.nav_state == "idle"
+    assert published == []
 
 
-def test_robot_tool_manual_supports_strafe_and_rotation(monkeypatch):
+def test_robot_tool_manual_does_not_publish_when_disabled(monkeypatch):
     tool = RobotTool()
     published = []
 
@@ -94,15 +89,15 @@ def test_robot_tool_manual_supports_strafe_and_rotation(monkeypatch):
         "manual",
         {"direction": "strafe_left", "speed": 0.4, "duration": 0},
     )
-    assert published[-1] == (0.0, 0.4, 0.0)
-    assert tool.manual_enabled is True
+    assert published == []
+    assert tool.manual_enabled is False
     assert tool.follow_enabled is False
 
     tool.execute_command(
         "manual",
         {"direction": "rotate_right", "speed": 0.25, "duration": 0},
     )
-    assert published[-1] == (0.0, 0.0, -0.25)
+    assert published == []
 
 
 def test_navigation_tool_saves_and_navigates_to_waypoints(monkeypatch):
@@ -128,13 +123,13 @@ def test_navigation_tool_saves_and_navigates_to_waypoints(monkeypatch):
 
     saved = tool.save_waypoint("kitchen", 1.25, -0.5, theta=0.75, description="Kitchen")
     assert saved["pose"] == {"x": 1.25, "y": -0.5, "theta": 0.75}
-    assert published[0][0:2] == ("save", "kitchen")
+    assert published == []
     assert tool.waypoint_file.exists()
 
     tool.use_ros2 = True
     result = tool.navigate_to("kitchen")
-    assert result["success"] is True
-    assert published[-1] == ("goal", "kitchen")
+    assert result["success"] is False
+    assert published == []
     assert "x=1.25" in result["message"]
     assert "y=-0.5" in result["message"]
 

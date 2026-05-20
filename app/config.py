@@ -32,3 +32,9 @@ class Config:
     EDGE_TTS_RATE: str = os.getenv("EDGE_TTS_RATE", "+0%")
     PIPER_BIN: str = os.getenv("PIPER_BIN", "piper")
     PIPER_MODEL_PATH: str = os.getenv("PIPER_MODEL_PATH", "")
+    ROBOT_CONTROL_ENABLED: bool = os.getenv("BUDDYBOT_AI_ENABLE_ROBOT_CONTROL", "0").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }

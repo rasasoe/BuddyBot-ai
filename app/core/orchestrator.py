@@ -30,6 +30,12 @@ class Orchestrator:
         self.memory = memory_store
         self.navigation = navigation_tool
 
+    def _local_robot_control_message(self) -> str:
+        return (
+            "로봇 이동 명령은 서버 AI가 실행하지 않습니다. "
+            "Pi에서 버디봇이라고 부른 뒤 전진, 정지, 좌회전, 사용자 추종, 주방 이동처럼 말해 주세요."
+        )
+
     def _is_complex(self, message: str) -> bool:
         text = message.strip().lower()
         if len(text) >= 80:
@@ -85,47 +91,18 @@ class Orchestrator:
                 f"활성 제어 소스는 {status.active_source}입니다."
             )
 
-        if intent == "robot_stop":
-            return self.robot.execute_command("stop")["message"]
-
-        if intent == "robot_dock":
-            return self.robot.execute_command("dock")["message"]
-
-        if intent == "robot_follow_start":
-            return self.robot.execute_command("follow")["message"]
-
-        if intent == "robot_follow_stop":
-            return self.robot.execute_command("follow_stop")["message"]
-
-        if intent == "robot_manual":
-            return self.robot.execute_command(
-                "manual",
-                {
-                    "direction": slots.get("direction", "forward"),
-                    "speed": slots.get("speed", 0.3),
-                    "duration": slots.get("duration", 1.5),
-                },
-            )["message"]
-
-        if intent == "nav_goto":
-            waypoint = slots.get("waypoint", "home_base")
-            result = self.navigation.navigate_to(waypoint)
-            return result["message"]
+        if intent in {
+            "robot_stop",
+            "robot_dock",
+            "robot_follow_start",
+            "robot_follow_stop",
+            "robot_manual",
+            "nav_goto",
+        }:
+            return self._local_robot_control_message()
 
         if intent == "nav_save_waypoint":
-            waypoint = slots.get("waypoint", "custom_point")
-            saved = self.navigation.save_waypoint(
-                name=waypoint,
-                x=slots.get("x", 0.0),
-                y=slots.get("y", 0.0),
-                theta=slots.get("theta", 0.0),
-                description=f"{waypoint} semantic checkpoint",
-            )
-            pose = saved.get("pose", {})
-            return (
-                f"{waypoint} 체크포인트를 저장했습니다. "
-                f"x={pose.get('x')}, y={pose.get('y')}, theta={pose.get('theta')}입니다."
-            )
+            return "체크포인트 저장은 Pi 패널에서 현재 위치를 기준으로 실행해 주세요."
 
         response = None
         if self.gemini is not None and self._is_complex(message):
@@ -139,5 +116,5 @@ class Orchestrator:
             return response
         return (
             "버디봇이에요. 지금은 로컬 응답 모드로 동작 중입니다. "
-            "시간, 날씨, 메모, 추종 시작, 정지, 수동 이동 같은 명령은 바로 처리할 수 있어요."
+            "시간, 날씨, 메모, 일반 대화는 서버가 답하고, 로봇 이동은 Pi 로컬 음성이 처리합니다."
         )

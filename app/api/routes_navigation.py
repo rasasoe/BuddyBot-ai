@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app.tools.navigation_tool import NavigationTool
@@ -31,6 +31,11 @@ def map_summary():
 
 @router.post("/nav/waypoints")
 def save_waypoint(request: WaypointSaveRequest):
+    if not navigation.control_enabled:
+        raise HTTPException(
+            status_code=403,
+            detail="Checkpoint writes are handled on the Pi panel in local robot mode",
+        )
     waypoint = navigation.save_waypoint(
         request.name,
         request.x,
@@ -43,4 +48,9 @@ def save_waypoint(request: WaypointSaveRequest):
 
 @router.post("/nav/go")
 def go_to_waypoint(request: WaypointGoRequest):
+    if not navigation.control_enabled:
+        raise HTTPException(
+            status_code=403,
+            detail="Waypoint movement is handled locally on the Pi",
+        )
     return navigation.navigate_to(request.name)

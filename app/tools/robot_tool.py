@@ -48,13 +48,17 @@ class RobotTool:
         self.active_source = "idle"
         self.last_command = "idle"
         self.use_ros2 = False
+        self.control_enabled = bool(self.config.ROBOT_CONTROL_ENABLED)
         self._ros_node = None
         self._manual_pub = None
         self._follow_pub = None
         self._waypoint_goal_pub = None
         self._nav_cancel_pub = None
 
-        self._init_ros2()
+        if self.control_enabled:
+            self._init_ros2()
+        else:
+            logger.info("Server-side robot control disabled. Pi local voice/panel owns robot motion.")
 
     def _init_ros2(self) -> None:
         if not ROS2_AVAILABLE:
@@ -104,6 +108,11 @@ class RobotTool:
 
         if normalized == "status":
             return self._result("현재 로봇 상태를 확인했습니다.")
+        if not self.control_enabled:
+            return self._result(
+                "서버에서는 로봇 제어 명령을 실행하지 않습니다. 버디봇 Pi 패널이나 로컬 음성 명령을 사용해 주세요.",
+                success=False,
+            )
         if normalized == "stop":
             self.follow_enabled = False
             self.manual_enabled = False

@@ -60,7 +60,7 @@ class IntentRouter:
                 return "nav_goto"
         if any(
             word in text
-            for word in ["앞으로", "뒤로", "왼쪽", "오른쪽", "manual", "수동", "회전", "이동"]
+            for word in ["전진", "후진", "앞으로", "뒤로", "왼쪽", "오른쪽", "좌측", "우측", "manual", "수동", "회전", "이동"]
         ):
             return "robot_manual"
         return "chat"
@@ -115,13 +115,15 @@ class IntentRouter:
     def _extract_direction(text: str) -> str:
         if "뒤로" in text or "backward" in text:
             return "backward"
+        if "후진" in text:
+            return "backward"
         if any(word in text for word in ["좌회전", "왼쪽 회전", "rotate left", "turn left"]):
             return "rotate_left"
         if any(word in text for word in ["우회전", "오른쪽 회전", "rotate right", "turn right"]):
             return "rotate_right"
-        if any(word in text for word in ["왼쪽으로", "왼쪽 이동", "strafe left", "slide left"]):
+        if any(word in text for word in ["왼쪽으로", "왼쪽 이동", "좌측으로", "좌측 이동", "strafe left", "slide left"]):
             return "strafe_left"
-        if any(word in text for word in ["오른쪽으로", "오른쪽 이동", "strafe right", "slide right"]):
+        if any(word in text for word in ["오른쪽으로", "오른쪽 이동", "우측으로", "우측 이동", "strafe right", "slide right"]):
             return "strafe_right"
         if "left" in text:
             return "rotate_left"

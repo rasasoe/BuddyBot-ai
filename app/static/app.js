@@ -41,8 +41,9 @@ async function sendRobotCommand(command, params = {}) {
     body: JSON.stringify({ command, params }),
   });
   const data = await response.json();
-  addMessage("bot", data.message);
-  speak(data.message);
+  const message = data.message || data.detail || "서버에서는 로봇 제어 명령을 실행하지 않습니다.";
+  addMessage("bot", message);
+  speak(message);
   await refreshStatus();
 }
 
@@ -171,8 +172,9 @@ async function goSelectedWaypoint() {
     body: JSON.stringify({ name }),
   });
   const data = await response.json();
-  addMessage("bot", data.message);
-  speak(data.message);
+  const message = data.message || data.detail || "서버에서는 체크포인트 이동을 실행하지 않습니다.";
+  addMessage("bot", message);
+  speak(message);
   await refreshStatus();
 }
 
@@ -189,8 +191,8 @@ async function saveWaypoint(event) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, x, y, theta, description: `${name} user-defined checkpoint` }),
   });
-  await response.json();
-  addMessage("bot", `${name} 체크포인트를 저장했습니다.`);
+  const data = await response.json();
+  addMessage("bot", data.detail || `${name} 체크포인트를 저장했습니다.`);
   event.target.reset();
   await refreshWaypoints();
 }
@@ -281,7 +283,7 @@ if (SpeechRecognition) {
   voiceBtn.textContent = "브라우저 음성 미지원";
 }
 
-addMessage("bot", "버디봇 관제 화면이 준비되었습니다. 수동 조작, 추종, 체크포인트 저장과 이동을 바로 시작할 수 있습니다.");
+addMessage("bot", "버디봇 서버 AI 화면이 준비되었습니다. 로봇 이동은 Pi 로컬 음성 또는 Pi 패널에서 실행합니다.");
 refreshHealth();
 refreshStatus();
 refreshWaypoints();

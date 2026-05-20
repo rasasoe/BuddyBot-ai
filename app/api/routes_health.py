@@ -33,7 +33,7 @@ def health_check(config: Config = Depends(get_config)):
         "ollama": "connected" if ollama.is_available() else "disconnected",
         "gemini": "configured" if gemini.is_configured() else "not_configured",
         "sqlite": "connected" if sqlite_ok else "disconnected",
-        "robot_bridge": "connected" if robot.use_ros2 else "mock",
+        "robot_bridge": "connected" if robot.use_ros2 else "local_only",
         "stt": "available" if stt.is_available() else "not_installed",
         "tts": tts.status(),
     }

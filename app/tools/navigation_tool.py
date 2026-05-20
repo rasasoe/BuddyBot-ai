@@ -35,10 +35,14 @@ class NavigationTool:
             / "waypoints.yaml"
         )
         self.use_ros2 = False
+        self.control_enabled = bool(self.config.ROBOT_CONTROL_ENABLED)
         self._ros_node = None
         self._goal_pub = None
         self._save_pub = None
-        self._init_ros2()
+        if self.control_enabled:
+            self._init_ros2()
+        else:
+            logger.info("Server-side navigation control disabled. Pi owns waypoint motion.")
 
     def _init_ros2(self) -> None:
         if not ROS2_AVAILABLE:
@@ -89,7 +93,8 @@ class NavigationTool:
             "approach_distance": 0.5,
         }
         self._save_data(data)
-        self._publish_waypoint_save(name, data["waypoints"][name])
+        if self.control_enabled:
+            self._publish_waypoint_save(name, data["waypoints"][name])
         logger.info("Saved waypoint %s to %s", name, self.waypoint_file)
         return data["waypoints"][name]
 
@@ -97,6 +102,18 @@ class NavigationTool:
         waypoint = self.get_waypoint(name)
         if not waypoint:
             return {"success": False, "message": f"'{name}' 체크포인트를 찾지 못했습니다."}
+
+        if not self.control_enabled:
+            pose = waypoint.get("pose", {})
+            return {
+                "success": False,
+                "message": (
+                    "서버에서는 체크포인트 이동 요청을 실행하지 않습니다. "
+                    f"Pi 패널에서 {name} 이동을 실행해 주세요. "
+                    f"(x={pose.get('x')}, y={pose.get('y')}, theta={pose.get('theta')})"
+                ),
+                "waypoint": waypoint,
+            }
 
         pose = waypoint.get("pose", {})
         self._publish_waypoint_goal(name)

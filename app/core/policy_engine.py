@@ -5,8 +5,10 @@ from app.logger import logger
 
 class PolicyEngine:
     SAFE_COMMANDS = [
-        "stop",
         "status",
+    ]
+    ROBOT_CONTROL_COMMANDS = [
+        "stop",
         "dock",
         "follow",
         "follow_start",
@@ -26,6 +28,9 @@ class PolicyEngine:
         if normalized in PolicyEngine.UNSAFE_COMMANDS:
             logger.warning("Blocked unsafe command: %s", normalized)
             return {"allowed": False, "reason": "Unsafe command blocked"}
+        if normalized in PolicyEngine.ROBOT_CONTROL_COMMANDS:
+            logger.warning("Blocked server-side robot control command: %s", normalized)
+            return {"allowed": False, "reason": "Robot control commands are handled locally on the Pi"}
         if normalized in PolicyEngine.SAFE_COMMANDS:
             return {"allowed": True, "reason": "Command allowed"}
         logger.warning("Unknown command: %s", normalized)
