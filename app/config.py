@@ -22,9 +22,9 @@ class Config:
     BUDDYBOT_REPO_PATH: str = os.getenv("BUDDYBOT_REPO_PATH", _default_buddybot_repo())
     DEFAULT_CITY: str = os.getenv("DEFAULT_CITY", "Seoul")
 
-    STT_MODEL_SIZE: str = os.getenv("STT_MODEL_SIZE", "tiny")
-    STT_DEVICE: str = os.getenv("STT_DEVICE", "cpu")
-    STT_COMPUTE_TYPE: str = os.getenv("STT_COMPUTE_TYPE", "int8")
+    STT_MODEL_SIZE: str = os.getenv("STT_MODEL_SIZE", "large-v3-turbo")
+    STT_DEVICE: str = os.getenv("STT_DEVICE", "cuda")
+    STT_COMPUTE_TYPE: str = os.getenv("STT_COMPUTE_TYPE", "float16")
     STT_LANGUAGE: str = os.getenv("STT_LANGUAGE", "ko")
 
     TTS_BACKEND: str = os.getenv("TTS_BACKEND", "auto")

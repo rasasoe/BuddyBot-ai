@@ -15,6 +15,7 @@ It provides:
 - Python 3.11 or newer
 - Network access from Pi 5 to the server PC
 - Optional: Ollama for local LLM replies
+- Recommended: NVIDIA GPU and CUDA for `large-v3-turbo` Whisper STT
 
 ## Install
 
@@ -33,7 +34,13 @@ OPENWEATHER_API_KEY=your_key
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=qwen2.5:7b
 SQLITE_PATH=./data/buddybot.db
+STT_MODEL_SIZE=large-v3-turbo
+STT_DEVICE=cuda
+STT_COMPUTE_TYPE=float16
+STT_LANGUAGE=ko
 ```
+
+For a CPU-only test server, use `STT_MODEL_SIZE=tiny`, `STT_DEVICE=cpu`, and `STT_COMPUTE_TYPE=int8`.
 
 ## Run
 
@@ -59,6 +66,8 @@ Open:
 
 - `GET /health`
 - `POST /chat`
+- `POST /stt`
+- `POST /tts`
 - `GET /robot/status`
 - `POST /robot/command`
 - `GET /nav/waypoints`
@@ -76,4 +85,3 @@ python -m pytest tests
 
 The server PC repo does not directly drive motors.
 It should send high-level commands while the Pi 5 handles ROS2, LiDAR, follow, and motor control.
-

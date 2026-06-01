@@ -9,6 +9,8 @@
 - 메인 웹 GUI
 - AI 채팅
 - 브라우저 기반 음성 입력/출력
+- Pi 음성 명령용 Whisper STT API
+- AI 답변용 Edge TTS API
 - 시간, 날씨, 메모리 기능
 - 체크포인트 목록/저장/이동 API
 - 체크포인트 기반 미니맵 분석
@@ -49,6 +51,7 @@
 - Python 3.11 이상
 - 선택 사항: Ollama
 - 선택 사항: OpenWeather API 키
+- 권장: NVIDIA GPU와 CUDA (`large-v3-turbo` Whisper용)
 
 ## 설치
 
@@ -74,7 +77,14 @@ OLLAMA_MODEL=qwen2.5:7b
 SQLITE_PATH=./data/buddybot.db
 BUDDYBOT_REPO_PATH=../BuddyBot
 DEFAULT_CITY=Seoul
+STT_MODEL_SIZE=large-v3-turbo
+STT_DEVICE=cuda
+STT_COMPUTE_TYPE=float16
+STT_LANGUAGE=ko
 ```
+
+4070 Ti 서버 기준 Whisper 기본값은 `large-v3-turbo`, `cuda`, `float16`입니다.
+GPU 없이 서버를 시험할 때는 `.env`에서 `STT_MODEL_SIZE=tiny`, `STT_DEVICE=cpu`, `STT_COMPUTE_TYPE=int8`로 내립니다.
 
 ## 실행
 
@@ -103,6 +113,8 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 - `GET /health`
 - `GET /app-info`
 - `POST /chat`
+- `POST /stt`
+- `POST /tts`
 - `GET /time`
 - `GET /weather`
 - `POST /memory/save`
@@ -150,6 +162,18 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 즉:
 - `BuddyBot`만으로도 오프라인 시연 가능
 - `BuddyBot-ai`는 AI 비서/상위 관제 확장용
+
+## Pi 음성 요청 흐름
+
+```text
+Pi faster-whisper tiny wake-word
+→ BuddyBot-ai POST /stt
+→ 서버 faster-whisper large-v3-turbo
+→ 텍스트를 Pi로 반환
+→ Pi가 로봇 명령을 로컬 판별
+```
+
+서버는 음성을 텍스트로 바꾸고 AI 대화를 처리하지만, 모터 명령을 직접 실행하지 않습니다.
 
 ## 테스트
 

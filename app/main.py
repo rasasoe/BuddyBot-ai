@@ -58,7 +58,7 @@ def app_info():
                 "memory save and recall",
                 "read-only robot status dashboard",
                 "local-only robot control boundary",
-                "optional offline whisper STT",
+                "server faster-whisper STT",
                 "optional edge/piper TTS",
             ],
         }
