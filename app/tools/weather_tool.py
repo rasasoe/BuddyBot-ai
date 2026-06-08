@@ -8,6 +8,15 @@ from app.logger import logger
 class WeatherTool:
     OPENWEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
     WTTR_URL = "https://wttr.in/{city}"
+    CITY_LABELS = {
+        "Seoul": "서울",
+        "Busan": "부산",
+        "Daegu": "대구",
+        "Incheon": "인천",
+        "Daejeon": "대전",
+        "Gwangju": "광주",
+        "Jeju": "제주",
+    }
 
     def __init__(self, api_key: str):
         self.api_key = api_key
@@ -26,12 +35,13 @@ class WeatherTool:
         temp = main.get("temp")
         desc = weather.get("description", "정보 없음")
         feels_like = main.get("feels_like")
+        city_label = self.CITY_LABELS.get(city, city)
 
-        parts = [f"{city} 현재 날씨는 {desc}"]
+        parts = [f"{city_label} 현재 날씨는 {desc}"]
         if temp is not None:
-            parts.append(f"기온은 {temp}도")
+            parts.append(f"기온은 {float(temp):.1f}도")
         if feels_like is not None:
-            parts.append(f"체감은 {feels_like}도")
+            parts.append(f"체감 온도는 {float(feels_like):.1f}도")
         return ", ".join(parts) + "입니다."
 
     def _from_openweather(self, city: str) -> Optional[Dict[str, Any]]:

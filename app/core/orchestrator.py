@@ -32,8 +32,8 @@ class Orchestrator:
 
     def _local_robot_control_message(self) -> str:
         return (
-            "로봇 이동 명령은 서버 AI가 실행하지 않습니다. "
-            "Pi에서 버디봇이라고 부른 뒤 전진, 정지, 좌회전, 사용자 추종, 주방 이동처럼 말해 주세요."
+            "로봇 이동 명령은 서버 AI가 직접 실행하지 않습니다. "
+            "버디봇 전진, 멈춰, 따라와 같은 명령은 Pi 로컬 음성 제어에서 처리합니다."
         )
 
     def _is_complex(self, message: str) -> bool:
@@ -53,6 +53,14 @@ class Orchestrator:
             "왜",
         ]
         return any(keyword in text for keyword in complex_keywords)
+
+    @staticmethod
+    def _voice_safe(text: str, *, max_chars: int = 220) -> str:
+        cleaned = " ".join((text or "").replace("```", " ").replace("*", " ").split()).strip()
+        if len(cleaned) <= max_chars:
+            return cleaned
+        cut = cleaned[:max_chars].rsplit(" ", 1)[0].strip() or cleaned[:max_chars].strip()
+        return f"{cut}. 자세한 내용은 패널에서 확인해 주세요."
 
     def process_message(self, message: str) -> str:
         intent = IntentRouter.route(message)
@@ -85,10 +93,10 @@ class Orchestrator:
 
         if intent == "robot_status":
             status = self.robot.get_status()
+            follow_state = "켜짐" if status.follow_enabled else "꺼짐"
             return (
-                f"현재 배터리는 {status.battery}%이고 "
-                f"모드는 {status.mode}, 추종은 {'켜짐' if status.follow_enabled else '꺼짐'}, "
-                f"활성 제어 소스는 {status.active_source}입니다."
+                f"현재 배터리는 {status.battery}퍼센트이고, 모드는 {status.mode}입니다. "
+                f"사용자 추종은 {follow_state}입니다."
             )
 
         if intent in {
@@ -113,8 +121,8 @@ class Orchestrator:
             response = self.ollama.generate(message)
 
         if response:
-            return response
+            return self._voice_safe(response)
         return (
-            "버디봇이에요. 지금은 로컬 응답 모드로 동작 중입니다. "
-            "시간, 날씨, 메모, 일반 대화는 서버가 답하고, 로봇 이동은 Pi 로컬 음성이 처리합니다."
+            "저는 버디봇입니다. 시간, 날씨, 메모, 작품 설명은 서버가 답하고, "
+            "이동과 정지는 Pi 로컬 제어가 처리합니다."
         )

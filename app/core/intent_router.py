@@ -32,27 +32,37 @@ class IntentRouter:
             return "memory_save"
         if any(word in text for word in ["불러", "기억나", "메모 보여", "retrieve", "recall"]):
             return "memory_get"
-        if any(word in text for word in ["상태", "배터리", "robot status", "status"]) and "날씨" not in text:
-            return "robot_status"
-        if any(word in text for word in ["정지", "멈춰", "스톱", "stop"]):
-            return "robot_stop"
-        if any(word in text for word in ["귀환", "충전", "dock", "charger"]):
-            return "robot_dock"
         if any(
             word in text
-            for word in ["추종 시작", "따라와", "follow me", "follow on", "따라와줘", "추종 켜"]
-        ):
-            return "robot_follow_start"
-        if any(
-            word in text
-            for word in ["추종 중지", "따라오지 마", "follow off", "unfollow", "추종 꺼"]
+            for word in ["추종 중지", "추종 정지", "따라오지 마", "그만 따라와", "follow off", "unfollow", "추종 꺼"]
         ):
             return "robot_follow_stop"
+        if any(
+            word in text
+            for word in [
+                "추종 시작",
+                "사용자 추종",
+                "사용자 조정",
+                "사용자 조종",
+                "따라와",
+                "나 따라와",
+                "follow me",
+                "follow on",
+                "추종 켜",
+            ]
+        ):
+            return "robot_follow_start"
+        if any(word in text for word in ["상태", "배터리", "robot status", "status"]) and "날씨" not in text:
+            return "robot_status"
+        if any(word in text for word in ["정지", "멈춰", "스톱", "스탑", "중지", "stop"]):
+            return "robot_stop"
+        if any(word in text for word in ["충전", "도킹", "dock", "charger"]):
+            return "robot_dock"
         if any(word in text for word in ["체크포인트", "웨이포인트", "waypoint"]) and any(
             word in text for word in ["저장", "기록", "save", "create"]
         ):
             return "nav_save_waypoint"
-        if any(word in text for word in ["이동", "가줘", "가자", "navigate", "go to", "안내"]):
+        if any(word in text for word in ["이동", "가줘", "가", "navigate", "go to", "안내"]):
             if any(
                 word in text
                 for word in ["주방", "부엌", "거실", "방", "침실", "home", "base", "kitchen", "bedroom"]
@@ -60,7 +70,19 @@ class IntentRouter:
                 return "nav_goto"
         if any(
             word in text
-            for word in ["전진", "후진", "앞으로", "뒤로", "왼쪽", "오른쪽", "좌측", "우측", "manual", "수동", "회전", "이동"]
+            for word in [
+                "전진",
+                "앞으로",
+                "뒤로",
+                "후진",
+                "왼쪽",
+                "오른쪽",
+                "좌측",
+                "우측",
+                "manual",
+                "수동",
+                "회전",
+            ]
         ):
             return "robot_manual"
         return "chat"
@@ -113,9 +135,7 @@ class IntentRouter:
 
     @staticmethod
     def _extract_direction(text: str) -> str:
-        if "뒤로" in text or "backward" in text:
-            return "backward"
-        if "후진" in text:
+        if "뒤로" in text or "후진" in text or "backward" in text or "reverse" in text:
             return "backward"
         if any(word in text for word in ["좌회전", "왼쪽 회전", "rotate left", "turn left"]):
             return "rotate_left"
@@ -144,7 +164,7 @@ class IntentRouter:
             "문": "front_door",
             "충전": "charging_station",
             "충전기": "charging_station",
-            "홈": "home_base",
+            "집": "home_base",
             "베이스": "home_base",
             "kitchen": "kitchen",
             "bedroom": "bedroom",

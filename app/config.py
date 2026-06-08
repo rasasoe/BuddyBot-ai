@@ -28,8 +28,8 @@ class Config:
     STT_LANGUAGE: str = os.getenv("STT_LANGUAGE", "ko")
 
     TTS_BACKEND: str = os.getenv("TTS_BACKEND", "auto")
-    EDGE_TTS_VOICE: str = os.getenv("EDGE_TTS_VOICE", "ko-KR-SunHiNeural")
-    EDGE_TTS_RATE: str = os.getenv("EDGE_TTS_RATE", "+0%")
+    EDGE_TTS_VOICE: str = os.getenv("EDGE_TTS_VOICE", "ko-KR-InJoonNeural")
+    EDGE_TTS_RATE: str = os.getenv("EDGE_TTS_RATE", "-5%")
     PIPER_BIN: str = os.getenv("PIPER_BIN", "piper")
     PIPER_MODEL_PATH: str = os.getenv("PIPER_MODEL_PATH", "")
     ROBOT_CONTROL_ENABLED: bool = os.getenv("BUDDYBOT_AI_ENABLE_ROBOT_CONTROL", "0").lower() in {

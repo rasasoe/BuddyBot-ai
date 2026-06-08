@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import re
 import subprocess
 import tempfile
 from pathlib import Path
@@ -29,7 +30,7 @@ class SpeechService:
         return edge_tts is not None or bool(self.config.PIPER_MODEL_PATH)
 
     async def synthesize_to_file(self, text: str) -> Dict[str, str]:
-        cleaned = " ".join(text.split()).strip()
+        cleaned = self._clean_for_speech(text)
         if not cleaned:
             raise RuntimeError("text is empty")
 
@@ -71,3 +72,16 @@ class SpeechService:
             stderr = (completed.stderr or completed.stdout or "").strip()
             raise RuntimeError(stderr or f"piper exited with {completed.returncode}")
         return {"path": str(temp_path), "media_type": "audio/wav"}
+
+    @staticmethod
+    def _clean_for_speech(text: str) -> str:
+        cleaned = text or ""
+        cleaned = re.sub(r"```.*?```", " ", cleaned, flags=re.DOTALL)
+        cleaned = cleaned.replace("*", " ").replace("#", " ").replace("_", " ")
+        cleaned = cleaned.replace("`", " ").replace("|", " ")
+        cleaned = re.sub(r"https?://\S+", " 링크 ", cleaned)
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+        if len(cleaned) <= 260:
+            return cleaned
+        cut = cleaned[:260].rsplit(" ", 1)[0].strip() or cleaned[:260].strip()
+        return f"{cut}. 자세한 내용은 패널에서 확인해 주세요."
