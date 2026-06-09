@@ -1,5 +1,6 @@
 import os
 import tempfile
+import threading
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
@@ -15,6 +16,9 @@ from app.api.routes_navigation import router as navigation_router
 from app.api.routes_robot import router as robot_router
 from app.api.routes_time import router as time_router
 from app.api.routes_weather import router as weather_router
+from app.config import Config
+from app.llm.ollama_client import OllamaClient
+from app.logger import logger
 from app.stt.whisper_service import WhisperService
 from app.tts.speech_service import SpeechService
 
@@ -36,6 +40,26 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 stt_service = WhisperService()
 tts_service = SpeechService()
+
+
+@app.on_event("startup")
+def warm_ollama_model():
+    config = Config()
+    if not config.OLLAMA_PREWARM:
+        return
+
+    def _warm():
+        client = OllamaClient(
+            config.OLLAMA_BASE_URL,
+            config.OLLAMA_MODEL,
+            timeout_sec=config.OLLAMA_TIMEOUT_SEC,
+            keep_alive=config.OLLAMA_KEEP_ALIVE,
+            num_predict=8,
+        )
+        client.warmup()
+
+    logger.info("Starting Ollama warmup for %s", config.OLLAMA_MODEL)
+    threading.Thread(target=_warm, daemon=True).start()
 
 
 class TTSRequest(BaseModel):

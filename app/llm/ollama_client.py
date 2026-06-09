@@ -26,10 +26,20 @@ BuddyBot은 사용자를 따라다니며 주변 공간을 인식하는 이동형
 이동 명령은 Raspberry Pi 5의 로컬 음성 제어와 패널이 처리한다고 안내하세요.
 """
 
-    def __init__(self, base_url: str, model: str, *, timeout_sec: float = 12.0):
+    def __init__(
+        self,
+        base_url: str,
+        model: str,
+        *,
+        timeout_sec: float = 30.0,
+        keep_alive: str = "30m",
+        num_predict: int = 96,
+    ):
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.timeout_sec = max(1.0, timeout_sec)
+        self.keep_alive = keep_alive
+        self.num_predict = max(16, num_predict)
 
     def is_available(self) -> bool:
         try:
@@ -37,6 +47,29 @@ BuddyBot은 사용자를 따라다니며 주변 공간을 인식하는 이동형
             response.raise_for_status()
             return True
         except requests.RequestException:
+            return False
+
+    def warmup(self) -> bool:
+        try:
+            response = requests.post(
+                f"{self.base_url}/api/generate",
+                json={
+                    "model": self.model,
+                    "prompt": "ping",
+                    "stream": False,
+                    "keep_alive": self.keep_alive,
+                    "options": {
+                        "temperature": 0.0,
+                        "num_predict": 8,
+                    },
+                },
+                timeout=max(self.timeout_sec, 45.0),
+            )
+            response.raise_for_status()
+            logger.info("Ollama model warmed: %s", self.model)
+            return True
+        except requests.RequestException as exc:
+            logger.warning("Ollama warmup failed: %s", exc)
             return False
 
     def generate(self, prompt: str) -> Optional[str]:
@@ -48,9 +81,10 @@ BuddyBot은 사용자를 따라다니며 주변 공간을 인식하는 이동형
                     "model": self.model,
                     "prompt": full_prompt,
                     "stream": False,
+                    "keep_alive": self.keep_alive,
                     "options": {
                         "temperature": 0.2,
-                        "num_predict": 120,
+                        "num_predict": self.num_predict,
                     },
                 },
                 timeout=self.timeout_sec,
