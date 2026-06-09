@@ -55,6 +55,7 @@ def warm_ollama_model():
             timeout_sec=config.OLLAMA_TIMEOUT_SEC,
             keep_alive=config.OLLAMA_KEEP_ALIVE,
             num_predict=8,
+            num_ctx=config.OLLAMA_NUM_CTX,
         )
         client.warmup()
 

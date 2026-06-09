@@ -23,6 +23,7 @@ def chat(request: ChatRequest, config=Depends(get_config)):
             timeout_sec=config.OLLAMA_TIMEOUT_SEC,
             keep_alive=config.OLLAMA_KEEP_ALIVE,
             num_predict=config.OLLAMA_NUM_PREDICT,
+            num_ctx=config.OLLAMA_NUM_CTX,
         ),
         gemini_client=GeminiClient(config.GEMINI_API_KEY, config.GEMINI_MODEL),
         weather_tool=WeatherTool(

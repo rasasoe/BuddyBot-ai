@@ -15,7 +15,8 @@ class Config:
     OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
     OLLAMA_TIMEOUT_SEC: float = float(os.getenv("OLLAMA_TIMEOUT_SEC", "30"))
     OLLAMA_KEEP_ALIVE: str = os.getenv("OLLAMA_KEEP_ALIVE", "30m")
-    OLLAMA_NUM_PREDICT: int = int(os.getenv("OLLAMA_NUM_PREDICT", "96"))
+    OLLAMA_NUM_PREDICT: int = int(os.getenv("OLLAMA_NUM_PREDICT", "64"))
+    OLLAMA_NUM_CTX: int = int(os.getenv("OLLAMA_NUM_CTX", "1024"))
     OLLAMA_PREWARM: bool = os.getenv("OLLAMA_PREWARM", "1").lower() in {
         "1",
         "true",
