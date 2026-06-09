@@ -41,6 +41,7 @@ BuddyBot은 사용자를 따라다니며 주변 공간을 인식하는 이동형
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.timeout_sec = max(1.0, timeout_sec)
+        self.first_token_timeout_sec = min(self.timeout_sec, 8.0)
         self.keep_alive = keep_alive
         self.num_predict = max(16, num_predict)
         self.num_ctx = max(512, num_ctx)
@@ -92,7 +93,7 @@ BuddyBot은 사용자를 따라다니며 주변 공간을 인식하는 이동형
                         "num_ctx": self.num_ctx,
                     },
                 },
-                timeout=(3.0, self.timeout_sec),
+                timeout=(3.0, self.first_token_timeout_sec),
                 stream=True,
             )
             response.raise_for_status()
