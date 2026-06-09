@@ -19,7 +19,11 @@ def chat(request: ChatRequest, config=Depends(get_config)):
     orchestrator = Orchestrator(
         ollama_client=OllamaClient(config.OLLAMA_BASE_URL, config.OLLAMA_MODEL),
         gemini_client=GeminiClient(config.GEMINI_API_KEY, config.GEMINI_MODEL),
-        weather_tool=WeatherTool(config.OPENWEATHER_API_KEY),
+        weather_tool=WeatherTool(
+            config.OPENWEATHER_API_KEY,
+            timeout_sec=config.WEATHER_TIMEOUT_SEC,
+            cache_ttl_sec=config.WEATHER_CACHE_TTL_SEC,
+        ),
         time_tool=TimeTool(),
         robot_tool=RobotTool(),
         memory_store=MemoryStore(config.SQLITE_PATH),

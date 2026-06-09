@@ -60,4 +60,8 @@ else
 fi
 
 echo "Starting BuddyBot-ai server..."
-exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+UVICORN_ARGS=(app.main:app --host 0.0.0.0 --port "${PORT:-8000}")
+if [ "${BUDDYBOT_AI_RELOAD:-0}" = "1" ]; then
+  UVICORN_ARGS+=(--reload)
+fi
+exec python -m uvicorn "${UVICORN_ARGS[@]}"

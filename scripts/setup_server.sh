@@ -6,7 +6,14 @@ VENV_DIR="$ROOT_DIR/.venv"
 
 cd "$ROOT_DIR"
 
-python3 -m venv "$VENV_DIR"
+PYTHON_BIN="${PYTHON:-python3}"
+if [ -d "$VENV_DIR" ] && [ ! -x "$VENV_DIR/bin/python" ]; then
+  BROKEN_VENV="${VENV_DIR}.broken-$(date +%Y%m%d-%H%M%S)"
+  echo "[setup] broken venv detected; moving $VENV_DIR to $BROKEN_VENV"
+  mv "$VENV_DIR" "$BROKEN_VENV"
+fi
+
+"$PYTHON_BIN" -m venv "$VENV_DIR"
 source "$VENV_DIR/bin/activate"
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt

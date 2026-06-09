@@ -1,4 +1,5 @@
-from typing import Any, Dict, Optional
+import time
+from typing import Any, Dict, Optional, Tuple
 
 import requests
 
@@ -8,6 +9,7 @@ from app.logger import logger
 class WeatherTool:
     OPENWEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
     WTTR_URL = "https://wttr.in/{city}"
+    _CACHE: Dict[Tuple[str, str], Tuple[float, Dict[str, Any]]] = {}
     CITY_LABELS = {
         "Seoul": "서울",
         "Busan": "부산",
@@ -18,16 +20,27 @@ class WeatherTool:
         "Jeju": "제주",
     }
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, *, timeout_sec: float = 2.5, cache_ttl_sec: float = 180.0):
         self.api_key = api_key
+        self.timeout_sec = max(0.5, timeout_sec)
+        self.cache_ttl_sec = max(0.0, cache_ttl_sec)
 
     def get_weather(self, city: str) -> Optional[Dict[str, Any]]:
+        cache_key = (city.lower().strip(), "openweather" if self.api_key else "wttr")
+        cached = self._CACHE.get(cache_key)
+        if cached and time.monotonic() - cached[0] <= self.cache_ttl_sec:
+            return cached[1]
+
         if self.api_key:
             data = self._from_openweather(city)
             if data:
+                self._CACHE[cache_key] = (time.monotonic(), data)
                 return data
 
-        return self._from_wttr(city)
+        data = self._from_wttr(city)
+        if data:
+            self._CACHE[cache_key] = (time.monotonic(), data)
+        return data
 
     def summarize_weather(self, city: str, data: Dict[str, Any]) -> str:
         main = data.get("main", {})
@@ -49,7 +62,7 @@ class WeatherTool:
             response = requests.get(
                 self.OPENWEATHER_URL,
                 params={"q": city, "appid": self.api_key, "units": "metric", "lang": "kr"},
-                timeout=10,
+                timeout=self.timeout_sec,
             )
             response.raise_for_status()
             return response.json()
@@ -62,7 +75,7 @@ class WeatherTool:
             response = requests.get(
                 self.WTTR_URL.format(city=city),
                 params={"format": "j1"},
-                timeout=10,
+                timeout=self.timeout_sec,
             )
             response.raise_for_status()
             raw = response.json()

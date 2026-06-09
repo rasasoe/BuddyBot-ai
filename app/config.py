@@ -18,6 +18,8 @@ class Config:
     GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
     OPENWEATHER_API_KEY: str = os.getenv("OPENWEATHER_API_KEY", "")
+    WEATHER_TIMEOUT_SEC: float = float(os.getenv("WEATHER_TIMEOUT_SEC", "2.5"))
+    WEATHER_CACHE_TTL_SEC: float = float(os.getenv("WEATHER_CACHE_TTL_SEC", "180"))
     SQLITE_PATH: str = os.getenv("SQLITE_PATH", "./data/buddybot.db")
     BUDDYBOT_REPO_PATH: str = os.getenv("BUDDYBOT_REPO_PATH", _default_buddybot_repo())
     DEFAULT_CITY: str = os.getenv("DEFAULT_CITY", "Seoul")
