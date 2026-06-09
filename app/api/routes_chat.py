@@ -17,7 +17,11 @@ router = APIRouter()
 @router.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest, config=Depends(get_config)):
     orchestrator = Orchestrator(
-        ollama_client=OllamaClient(config.OLLAMA_BASE_URL, config.OLLAMA_MODEL),
+        ollama_client=OllamaClient(
+            config.OLLAMA_BASE_URL,
+            config.OLLAMA_MODEL,
+            timeout_sec=config.OLLAMA_TIMEOUT_SEC,
+        ),
         gemini_client=GeminiClient(config.GEMINI_API_KEY, config.GEMINI_MODEL),
         weather_tool=WeatherTool(
             config.OPENWEATHER_API_KEY,

@@ -26,9 +26,10 @@ BuddyBot은 사용자를 따라다니며 주변 공간을 인식하는 이동형
 이동 명령은 Raspberry Pi 5의 로컬 음성 제어와 패널이 처리한다고 안내하세요.
 """
 
-    def __init__(self, base_url: str, model: str):
+    def __init__(self, base_url: str, model: str, *, timeout_sec: float = 12.0):
         self.base_url = base_url.rstrip("/")
         self.model = model
+        self.timeout_sec = max(1.0, timeout_sec)
 
     def is_available(self) -> bool:
         try:
@@ -43,8 +44,16 @@ BuddyBot은 사용자를 따라다니며 주변 공간을 인식하는 이동형
             full_prompt = f"{self.SYSTEM_PROMPT}\n\n사용자: {prompt}\n버디봇:"
             response = requests.post(
                 f"{self.base_url}/api/generate",
-                json={"model": self.model, "prompt": full_prompt, "stream": False},
-                timeout=45,
+                json={
+                    "model": self.model,
+                    "prompt": full_prompt,
+                    "stream": False,
+                    "options": {
+                        "temperature": 0.2,
+                        "num_predict": 120,
+                    },
+                },
+                timeout=self.timeout_sec,
             )
             response.raise_for_status()
             data = response.json()
