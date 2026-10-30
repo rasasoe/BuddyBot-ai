@@ -1,5 +1,8 @@
 # BuddyBot-ai
 
+<p align="center"><b>🌐 Language</b> &nbsp; <strong>🇰🇷 한국어</strong> &nbsp; | &nbsp; <a href="README.en.md">🇺🇸 English</a></p>
+
+
 `BuddyBot-ai`는 서버컴용 저장소입니다.
 
 이 레포는 라즈베리파이 5에서 직접 돌리는 레포가 아니라, 서버 PC에서 실행하는 상위 AI/관제/웹앱 레포입니다.
