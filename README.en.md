@@ -2,7 +2,7 @@
 
 <div align="center">
   <p><a href="README.md">🇰🇷 한국어</a> · <strong>🇺🇸 English</strong></p>
-  <p>![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white) ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white) ![Ollama](https://img.shields.io/badge/Ollama-Optional-4B5563)</p>
+  <p><img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white"/> <img alt="Python" src="https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white"/> <img alt="Ollama" src="https://img.shields.io/badge/Ollama-Optional-4B5563"/></p>
 </div>
 
 ---
