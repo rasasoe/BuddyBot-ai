@@ -1,15 +1,32 @@
-<p align="center"><img src="assets/portfolio-banner.svg" width="100%" alt="BuddyBot-ai — engineering overview"></p>
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/portfolio-banner-mobile.svg">
+  <img src="assets/portfolio-banner.svg" width="100%" alt="BuddyBot AI — server-side speech and high-level control">
+</picture>
 
-# BuddyBot-ai — Server-Side AI and Control
+<p align="right"><a href="README.md">한국어</a> / <strong>English</strong></p>
 
-<div align="center">
-  <p><a href="README.md">🇰🇷 한국어</a> · <strong>🇺🇸 English</strong></p>
+# BuddyBot-ai — Speech and Management Server
 
-</div>
+**FastAPI · STT/TTS · Browser GUI · High-level Robot Commands**
+
+## Why a separate server?
+
+The physical [BuddyBot](https://github.com/rasasoe/BuddyBot) runs ROS 2 on Raspberry Pi 5 and motor/safety logic on Raspberry Pi Pico. Speech and interactive AI services can introduce network delays, so they should not directly determine low-level motor output.
+
+BuddyBot-ai runs on a separate server PC. It provides **voice services, conversation, a management dashboard and high-level robot requests** while the Pi 5–Pico chain retains motion arbitration and safety behavior.
+
+## Implemented user-facing capabilities
+
+- Voice input and Whisper STT, speech synthesis and responses
+- Web management dashboard and manual robot-control requests
+- Following on/off and checkpoint save/navigation requests
+- AI conversation, time, weather and memory-related endpoints
+
+**Control boundary:** Server PC → high-level request → Pi 5 ROS 2 arbitration → Pico motor control. The server does not directly generate PWM or replace low-level stopping logic.
+
+[Physical robot demonstrations](https://github.com/rasasoe/BuddyBot#real-robot-demonstrations) · [BuddyBot architecture](https://github.com/rasasoe/BuddyBot#system-architecture)
 
 ---
-
-> Companion application for the physical [BuddyBot robot](https://github.com/rasasoe/BuddyBot). This repository runs on a **server PC**, not directly on the Raspberry Pi 5 or Pico.
 
 ## Responsibilities
 
