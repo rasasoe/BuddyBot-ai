@@ -1,8 +1,10 @@
+<p align="center"><img src="assets/portfolio-banner.svg" width="100%" alt="BuddyBot-ai — engineering overview"></p>
+
 # BuddyBot-ai — Server-Side AI and Control
 
 <div align="center">
   <p><a href="README.md">🇰🇷 한국어</a> · <strong>🇺🇸 English</strong></p>
-  <p><img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white"/> <img alt="Python" src="https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white"/> <img alt="Ollama" src="https://img.shields.io/badge/Ollama-Optional-4B5563"/></p>
+
 </div>
 
 ---
