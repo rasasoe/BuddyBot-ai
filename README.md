@@ -1,13 +1,32 @@
-<p align="center"><img src="assets/portfolio-banner.svg" width="100%" alt="BuddyBot-ai — engineering overview"></p>
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/portfolio-banner-mobile.svg">
+  <img src="assets/portfolio-banner.svg" width="100%" alt="BuddyBot AI — 로봇 서버 및 음성 인터페이스">
+</picture>
 
-# BuddyBot-ai
+<p align="right"><strong>한국어</strong> / <a href="README.en.md">English</a></p>
 
-<p align="center"><b>🌐 Language</b> &nbsp; <strong>🇰🇷 한국어</strong> &nbsp; | &nbsp; <a href="README.en.md">🇺🇸 English</a></p>
+# BuddyBot-ai — 로봇의 대화·관제 서버
 
+**FastAPI · STT/TTS · Browser GUI · High-level Robot Commands**
 
-`BuddyBot-ai`는 서버컴용 저장소입니다.
+## 왜 별도 서버로 분리했나
 
-이 레포는 라즈베리파이 5에서 직접 돌리는 레포가 아니라, 서버 PC에서 실행하는 상위 AI/관제/웹앱 레포입니다.
+[BuddyBot 실물 로봇](https://github.com/rasasoe/BuddyBot)은 Raspberry Pi 5의 ROS 2 처리와 Pico의 모터·안전 제어가 핵심입니다. 대화형 AI·웹 관제·음성 처리를 로봇의 저수준 제어에 직접 결합하면 외부 서비스 장애나 응답 지연이 주행 제어와 섞일 수 있습니다.
+
+그래서 서버 PC용 **BuddyBot-ai를 별도 서비스**로 구성했습니다. 이 저장소는 사람의 명령을 받아 **대화·음성 입출력·관제 화면·체크포인트 요청**을 처리하고, 실제 주행 명령과 모터 출력은 BuddyBot의 Pi 5–Pico 경로에 맡깁니다.
+
+## 구현한 사용자 기능
+
+- **음성:** Whisper STT API, TTS 응답, 브라우저 음성 입력·출력
+- **관제:** 통합 웹 GUI, 로봇 상태 확인 및 수동 조작 요청
+- **고수준 로봇 제어:** 추종 시작·중지와 체크포인트 저장·이동 요청
+- **대화 기능:** AI 채팅, 시간·날씨·메모리 응답
+
+**연결 관계:** 서버 PC → 고수준 요청 → Pi 5 ROS 2 명령 중재 → Pico 모터 제어. 서버가 PWM을 직접 생성하거나 독립적으로 저수준 안전 제어를 대체하지 않습니다.
+
+[BuddyBot 실물 시연](https://github.com/rasasoe/BuddyBot#실제-동작-시연) · [로봇 전체 구조](https://github.com/rasasoe/BuddyBot#시스템-아키텍처)
+
+---
 
 ## 담당 기능
 
