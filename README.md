@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/portfolio-banner.svg" width="100%" alt="BuddyBot-ai — engineering overview"></p>
+
 # BuddyBot-ai
 
 <p align="center"><b>🌐 Language</b> &nbsp; <strong>🇰🇷 한국어</strong> &nbsp; | &nbsp; <a href="README.en.md">🇺🇸 English</a></p>
